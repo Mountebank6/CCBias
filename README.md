@@ -1,3 +1,3 @@
 # ephemerality
 Transient events: find optimal search strategies, and extract even population generation function and observation selection function.
-Please don't bully me. I have no idea what I'm doing
+To be honest, I'm mostly just taking advantage of free remote git stuff. at this time, I don't intend to accept and commits from not-me.
