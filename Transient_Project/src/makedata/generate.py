@@ -15,9 +15,7 @@ class ImageData:
     def __init__(self, xdim=0, ydim=0):
         """Create array of zeros with a given shape.
         
-        One entry in this array should correspond to one pixel.
-        Functionality to handle non-rectangular search spaces
-        will probably never be added.
+        Only rectangular data allowed.
         """
         
         self.x = xdim
