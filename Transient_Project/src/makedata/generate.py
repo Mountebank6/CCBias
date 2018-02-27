@@ -1,5 +1,6 @@
 """
 Generate fake sample data for testing.
+Deprecated because I'm just going to use other people's code to handle this
 
 
 """
