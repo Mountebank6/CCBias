@@ -44,7 +44,8 @@ class TransientSeries:
         
     def __init__(self, shape=None, delta_t=None,
                  n=None, rate=None, lifetime=None, 
-                 lifetime_sigma=1e-100, data_type=np.uint16):
+                 lifetime_sigma=1e-100, data_type=np.uint16,
+                 gauss_intensity=None, gauss_sigma=None):
         """Generate initial conditions from parameters.
         """
         
@@ -69,9 +70,11 @@ class TransientSeries:
         check_rate(self.rate)
         check_n(self.n)
         check_lifetime_sigma(lifetime_sigma)
-        
+        #TODO: CHECK INTENSITY AND SIGMA
         self.new_population()
-        
+        if (gauss_intensity is not None) and (gauss_sigma is not None):
+            self.set_intensity_guassian(gauss_intensity, gauss_sigma)
+        #TODO: write better code
     
 def check_shape(shape):
     """Throw errors if types/values are wrong"""
