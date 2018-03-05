@@ -5,6 +5,7 @@ Generate fake sample data for testing.
 """
 
 from __future__ import division
+from numpy import rate
 
 __author__ = "Theo Faridani"
 __version__ = "0.09"
@@ -13,7 +14,7 @@ import numpy as np
 import astropy.nddata as nd
 
 _allowed_types = [np.uint8, np.uint16, np.uint32, np.uint64,
-                 np.float16, np.float32, np.float64]
+                  np.float16, np.float32, np.float64]
 
 class TransientSeries:
     """Handle creation and iteration of image set
@@ -21,23 +22,57 @@ class TransientSeries:
     
     
     def new_population(self):
-        """Generate fresh transient population and clear old one"""
+        """Generate fresh transient population and clear old one
+        
+        Iterate through the array, 
+        """
         self.current_event_locations = []
         self.current_event_births = []
         self.current_remaining_life = []
-        for i in range(len(self.astro_data.data)):
-            for k in range(len(self.astro_data.data[i])):
-                if np.random.rand() < self.rate:
-                    if self.lifetime_sigma is not None:
-                        lifetime = np.random.normal(self.lifetime,
-                                             self.lifetime_sigma)
-                    else:
-                        lifetime = self.lifetime
-                    birth = np.random.uniform(-lifetime,0)
-                    self.current_event_births.append(birth)
-                    self.current_event_locations.append((i,k))
-                    self.current_remaining_life.append(0.0 - birth)
+        if isinstance(rate, float):
+            for i in xrange(len(self.astro_data.data)):
+                for k in xrange(len(self.astro_data.data[i])):   
+                    if np.random.rand() < self.rate:
+                        if self.lifetime_sigma is not None:
+                            lifetime = np.random.normal(
+                                                self.lifetime,
+                                                self.lifetime_sigma)
+                        else:
+                            lifetime = self.lifetime
+                        birth = np.random.uniform(-lifetime,0)
+                        self.current_event_births.append(birth)
+                        self.current_event_locations.append((i,k))
+                        self.current_remaining_life.append(0.0 - birth)
                         
+        if isinstance(self.rate, np.ndarray):
+            if len(self.rate.shape) == 2:
+                for i in xrange(len(self.astro_data.data)):
+                    for k in xrange(len(self.astro_data.data)):
+                        if np.random.rand() < self.rate[i][k]:
+                            if self.lifetime_sigma is not None:
+                                lifetime = np.random.normal(
+                                                    self.lifetime,
+                                                    self.lifetime_sigma)
+                            else:
+                                lifetime = self.lifetime
+                            birth = np.random.uniform(-lifetime,0)
+                            self.current_event_births.append(birth)
+                            self.current_event_locations.append((i,k))
+                            self.current_remaining_life.append(0.0 - birth)
+            else:
+                for i in xrange(len(self.astro_data.data)):
+                    for k in xrange(len(self.astro_data.data)):
+                        if np.random.rand() < self.rate[0][i][k]:
+                            if self.lifetime_sigma is not None:
+                                lifetime = np.random.normal(
+                                                    self.lifetime,
+                                                    self.lifetime_sigma)
+                            else:
+                                lifetime = self.lifetime
+                            birth = np.random.uniform(-lifetime,0)
+                            self.current_event_births.append(birth)
+                            self.current_event_locations.append((i,k))
+                            self.current_remaining_life.append(0.0 - birth)
     
     def set_intensity_guassian(self,mag,sigma):
         """Give new events gaussian intensity"""
@@ -47,7 +82,7 @@ class TransientSeries:
         
     def __init__(self, shape=None, delta_t=None,
                  n=None, rate=None, lifetime=None, 
-                 lifetime_sigma=1e-100, data_type=np.uint16,
+                 lifetime_sigma=None, data_type=np.uint16,
                  gauss_intensity=None, gauss_sigma=None):
         """Generate initial conditions from parameters.
         """
@@ -71,7 +106,7 @@ class TransientSeries:
         check_shape(self.shape)
         check_data_type(self.data_type)
         check_delta_t(self.delta_t)
-        check_rate(self.rate)
+        check_rate(self.rate, self.n, self.shape)
         check_n(self.n)
         check_lifetime_sigma(self.lifetime_sigma)
         check_gauss_intensity(self.gauss_intensity)
@@ -79,7 +114,9 @@ class TransientSeries:
 #TODO: Current code throws errors if some values are at their default
 #    of none. Make sure this is really what you want.
         self.new_population()
-        if (gauss_intensity is not None) and (gauss_sigma is not None):
+        if (
+                self.gauss_intensity is not None 
+                and self.gauss_sigma is not None):
             self.set_intensity_guassian(gauss_intensity, gauss_sigma)
     
 def check_shape(shape):
@@ -109,17 +146,40 @@ def check_delta_t(delta_t):
     if delta_t <= 0:
         raise ValueError("delta_t must be >0")
         
-def check_rate(rate):
+def check_rate(rate, number, shap):
     """Throw errors if types/values are wrong"""
     if not (isinstance(rate, float)
             or isinstance(rate, np.ndarray)):
         raise TypeError("Bad operand type for rate: "
-                        + str(type(rate)) + "\n Must be" 
-                        + " float or numpy array of same shape as shape")
+                        + str(type(rate)) + "\n Must be " 
+                        + "float or numpy array of same shape as shape")
     if isinstance(rate, float):
         if rate > 1 or rate < 0:
             raise ValueError("rate is not a probability. " + 
                              "Must be between 0 and 1 inclusive")
+    if isinstance(rate, np.ndarray):
+        if len(rate.shape) == 2:
+            if rate.shape != shap:
+                raise ValueError("mismatched rate shape and shape of images")
+            for i in xrange(len(rate)):
+                for k in xrange(len(rate[i])):
+                    if rate[i][k] > 1 or rate[i][k] < 0:
+                        raise ValueError("Some rate values are not " + 
+                                         "between 0 and 1 inclusive")
+        if len(rate.shape) == 3:
+            if rate.shape != shap:
+                raise ValueError("mismatched rate shape and shape of images")
+            for i in xrange(len(rate)):
+                for k in xrange(len(rate[i])):
+                    for j in xrange(len(rate[i][k])):
+                        if rate[i][k][j] > 1 or rate[i][k][j] < 0:
+                            raise ValueError("Some rate values are not " + 
+                                             "between 0 and 1 inclusive")
+            if number > rate.shape[0]:
+                raise ValueError("n is greater than number of individual" + 
+                                 "probability arrays in rate")
+        else:
+            raise ValueError("rate must be 2D or 3D numpy array (or a float)")
 def check_n(n):
     """Throw errors if types/values are wrong"""
     if n is not None:
