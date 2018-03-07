@@ -140,12 +140,18 @@ class TransientSeries:
         Iterate through the image array, if rate is a float, generate a 
         random number uniformly from 0 to 1. If it's less than rate, put 
         a new event at the location in the image array given by the place
-        in the loop. If rate is an array, each pixel of the image array
-        is given a corresponding probability of event generation from 
-        the same location in the rate array.
+        in the loop. 
+        If rate is an array with shape given by a tuple of length 2,
+        each pixel of the image array is given a corresponding probability 
+        of event generation from the same location in the rate array.
         The events are given lifetimes according to a normal distribution,
         and are given a birth time pulled uniformly from the
         time interval [-delta_t,0]
+        If the rate is an array with shape given by a tuple of length 3, the
+        code interprets this as you supplying a (self.n,self.shape[0],self.shape[1])
+        shaped array. In other words, each step in time gets its own probability
+        heatmap. (e.g. rate[3] gives the probability heatmap after 3 delta_t's of
+        time has passed. 
         """
         self.current_time = 0
         self.current_event_locations = []
