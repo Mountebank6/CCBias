@@ -7,7 +7,7 @@ Generate fake sample data for testing.
 from __future__ import division
 
 __author__ = "Theo Faridani"
-__version__ = "0.09"
+__version__ = "0.10"
 
 import numpy as np
 import astropy.nddata as nd
@@ -17,6 +17,48 @@ _allowed_types = [np.uint8, np.uint16, np.uint32, np.uint64,
 
 class TransientSeries:
     """Handle creation and iteration of image set
+        
+    Args: (see __init__ docstring for more information
+        shape
+        delta_t
+        n
+        rate
+        lifetime
+        lifetime_sigma
+        data_type
+        gauss_intensity
+        gauss_sigma
+    Attributes:
+        current_event_locations: list of 2-tuples
+            lists the locations of the centers of the currently living events
+                current_event_locations[i], current_event_births[i], and 
+                current_remaining_life[i] all refer to the same event
+        current_event_births: list of floats
+            lists the birthtimes of the currently living events
+                current_event_locations[i], current_event_births[i], and 
+                current_remaining_life[i] all refer to the same event
+        current_remaining_life: list of floats
+            lists how much time remaining of life the currently living events have
+                current_event_locations[i], current_event_births[i], and 
+                current_remaining_life[i] all refer to the same event   
+        current_time: float
+            the current time. Always an integer multuple of delta_t. 
+            (current_time/delta_t + 1) images have been generated
+            in total for a given current_time since at current_time == 0, a starting
+            image exists.
+        astro_data: astropy.nddata.NDDataRef
+            the image data at current_time. It is an array of intensities in space
+    Public Methods:
+        new_population():
+            set current_time to 0. set astro_data to the zero array of shape given
+            by self.shape. Generate a new random set of events.
+        set_intensity_gaussian():
+            [SOON TO BE DEPRECATED]
+            Look through astro_data and current_event_locations. If 
+            current_event_locations indicates an event exists at an index, but 
+            the intensity at that index is 0, give that pixel in astro_data
+            a gaussian intensity with mean and standard deviation given by
+            gauss_intensity and gauss_sigma respectively.
     """
     
     
@@ -25,6 +67,38 @@ class TransientSeries:
                  lifetime_sigma=None, data_type=np.uint16,
                  gauss_intensity=None, gauss_sigma=None):
         """Generate initial conditions from parameters.
+        
+        Args:
+            shape: tuple of ints. Required
+                Shape of the images in the series. Units of pixels.
+            delta_t: float. Required
+                Time elapsed between images
+            n: int
+                Total number of images to make. (e.g. n*delta_t = Total observing
+                time)
+            rate: float or array of floats. Required
+                for rate as a float: the probability per pixel per delta_t
+                    that an event spawns
+                for rate as an array of floats:
+                    the shape of this array must be the same shape as the shape
+                    variable given earlier. The entries in this array are
+                    the probabilities per delta_t that an event spawns
+                    at the same index in the image. e.g. if rate[40,500] == 0.01,
+                    there is a 1% chance per delta_t that an event will spawn
+                    at index [40,500] in the image array.
+            lifetime: float. Required
+                the average lifetime of the events
+            lifetime_sigma: float
+                the standard deviation of lifetime. lifetimes generated will
+                be from a normal distribution
+            data_type: numpy data type
+                the data type of the intensity entries in the image.
+                Must be one of [np.uint8, np.uint16, np.uint32, np.uint64,
+                np.float16, np.float32, np.float64]
+            gauss_intensity: float
+                Average intensity of the events
+            gauss_sigma: float
+                standard deviation of the intensities of the events       
         """
         
         self.shape = shape
@@ -63,8 +137,17 @@ class TransientSeries:
     def new_population(self):
         """Generate fresh transient population and clear old one
         
-        Iterate through the array, 
+        Iterate through the image array, if rate is a float, generate a 
+        random number uniformly from 0 to 1. If it's less than rate, put 
+        a new event at the location in the image array given by the place
+        in the loop. If rate is an array, each pixel of the image array
+        is given a corresponding probability of event generation from 
+        the same location in the rate array.
+        The events are given lifetimes according to a normal distribution,
+        and are given a birth time pulled uniformly from the
+        time interval [-delta_t,0]
         """
+        self.current_time = 0
         self.current_event_locations = []
         self.current_event_births = []
         self.current_remaining_life = []
