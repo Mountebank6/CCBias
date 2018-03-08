@@ -11,6 +11,7 @@ __version__ = "0.10"
 
 import numpy as np
 import astropy.nddata as nd
+import copy
 
 _allowed_types = [np.uint8, np.uint16, np.uint32, np.uint64,
                   np.float16, np.float32, np.float64]
@@ -322,3 +323,127 @@ class TransientSeries:
             if self.gauss_sigma <= 0:
                 raise ValueError("Sigma of event intensity is <= 0. Bad!")
                                 
+    def get_shape(self):
+        return self.shape
+    
+    def get_n(self):
+        return self.n
+    
+    def get_delta_t(self):
+        return self.delta_t
+    
+    def get_rate(self):
+        return self.rate
+    
+    def get_data_type(self):
+        return self.data_type
+    
+    def get_lifetime(self):
+        return self.lifetime
+    
+    def get_lifetime_sigma(self):
+        return self.lifetime_sigma
+    
+    def get_gauss_intensity(self):
+        return self.gauss_intensity
+    
+    def get_gauss_sigma(self):
+        return self.gauss_sigma
+    
+    def get_astro_data(self):
+        return self.astro_data
+    
+    def get_current_time(self):
+        return self.current_time
+    
+    def get_current_event_locations(self):
+        return self.current_event_locations
+    
+    def get_current_event_births(self):
+        return self.current_event_births
+    
+    def get_current_remaining_life(self):
+        return self.current_remaining_life
+    
+    def set_shape(self, new):
+        temp = copy.copy(self.shape)
+        self.shape = new
+        try:
+            self.check_shape()
+        except:
+            self.shape = temp
+            raise ValueError("new not compliant with documentation")
+        
+    def set_delta_t(self, new):
+        temp = copy.copy(self.delta_t)
+        self.delta_t = new
+        try:
+            self.check_delta_t()
+        except:
+            self.delta_t = temp
+            raise ValueError("not compliant with documentation")
+    
+    def set_n(self, new):
+        temp = copy.copy(self.n)
+        self.n = new
+        try:
+            self.check_n()
+        except:
+            self.n = temp
+            raise ValueError("new not compliant with documentation")
+    
+    def set_rate(self, new):
+        temp = copy.copy(self.rate)
+        self.rate = new
+        try:
+            self.check_rate()
+        except:
+            self.rate = temp
+            raise ValueError("new not compliant with documentation")
+    
+    def set_data_type(self, new):
+        temp = copy.copy(self.data_type)
+        self.data_type = new
+        try:
+            self.check_data_type()
+        except:
+            self.data_type = temp
+            raise ValueError("new not compliant with documentation."
+                            +" You also probably shouldn't be changing this")
+    
+    def set_lifetime(self, new):
+        temp = copy.copy(self.lifetime)
+        self.lifetime = new
+        try:
+            self.check_lifetime()
+        except:
+            self.lifetime = temp
+            raise ValueError("new not compliant with documentation")
+        
+    def set_lifetime_sigma(self, new):
+        temp = copy.copy(self.lifetime_sigma)
+        self.lifetime_sigma = new
+        try:
+            self.check_lifetime_sigma()
+        except:
+            self.lifetime_sigma = temp
+            raise ValueError("new not compliant with documentation")
+        
+    def set_gauss_intensity(self, new):
+        temp = copy.copy(self.gauss_intensity)
+        self.gauss_intensity = new
+        try:
+            self.check_gauss_intensity()
+        except:
+            self.gauss_intensity = temp
+            raise ValueError("new not compliant with documentation")
+        
+    def set_gauss_sigma(self, new):
+        temp = copy.copy(self.gauss_sigma)
+        self.gauss_sigma = new
+        try:
+            self.check_gauss_sigma()()
+        except:
+            self.gauss_sigma = temp
+            raise ValueError("new not compliant with documentation")
+        
