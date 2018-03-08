@@ -7,7 +7,7 @@ Generate fake sample data for testing.
 from __future__ import division
 
 __author__ = "Theo Faridani"
-__version__ = "0.10"
+__version__ = "0.11"
 
 import numpy as np
 import astropy.nddata as nd
