@@ -12,6 +12,7 @@ __version__ = "0.11"
 import numpy as np
 import astropy.nddata as nd
 import copy
+from makedata.tools import velmaker
 
 _allowed_types = [np.uint8, np.uint16, np.uint32, np.uint64,
                   np.float16, np.float32, np.float64]
@@ -152,7 +153,7 @@ class TransientSeries:
         code interprets this as you supplying a (self.n,self.shape[0],self.shape[1])
         shaped array. In other words, each step in time gets its own probability
         heatmap. (e.g. rate[3] gives the probability heatmap after 3 delta_t's of
-        time has passed. 
+        time have passed. 
         """
         self.current_time = 0
         self.current_event_locations = []
@@ -446,4 +447,4 @@ class TransientSeries:
         except:
             self.gauss_sigma = temp
             raise ValueError("new not compliant with documentation")
-        
+    
