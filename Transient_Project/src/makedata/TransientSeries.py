@@ -209,6 +209,12 @@ class TransientSeries:
                             self.cur_births.append(birth)
                             self.cur_locations.append((i,k))
                             self.cur_durations.append(lifetime - (self.t-birth))
+        #kill events that run out of life before t == 0.
+        for i in range(len(self.cur_durations)):
+            if self.cur_durations[i] <= 0:
+                del self.cur_durations[i]
+                del self.cur_births[i]
+                del self.cur_durations[i]
     
     def new_population(self):
         """Generate fresh transient population and clear old one"""
@@ -237,6 +243,12 @@ class TransientSeries:
                 
         #generate new events
         self.populate()
+        #kill events that live their entire lifetime in between snapshots
+        for i in range(len(self.cur_durations)):
+            if self.cur_durations[i] <= 0:
+                del self.cur_durations[i]
+                del self.cur_births[i]
+                del self.cur_durations[i]
         return
     
     def set_intensity_guassian(self,mag,sigma):
