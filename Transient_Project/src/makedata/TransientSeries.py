@@ -18,6 +18,7 @@ from makedata.tools import velmaker
 _allowed_types = [np.uint8, np.uint16, np.uint32, np.uint64,
                   np.float16, np.float32, np.float64]
 
+#comment
 class TransientSeries:
     """Handle creation and iteration of image set
         
