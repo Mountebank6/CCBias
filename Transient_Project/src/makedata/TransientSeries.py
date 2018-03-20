@@ -4,8 +4,6 @@ Generate fake sample data for testing.
 
 """
 
-from __future__ import division
-from __builtin__ import str
 
 __author__ = "Theo Faridani"
 __version__ = "0.11"
@@ -158,8 +156,8 @@ class TransientSeries:
         3 dt's of time have passed.
         """
         if isinstance(self.rate, float):
-            for i in xrange(len(self.astro_data.data)):
-                for k in xrange(len(self.astro_data.data[i])):   
+            for i in range(len(self.astro_data.data)):
+                for k in range(len(self.astro_data.data[i])):   
                     if np.random.rand() < self.rate:
                         if self.lifetime_sigma is not None:
                             lifetime = np.random.normal(
@@ -177,8 +175,8 @@ class TransientSeries:
                         
         if isinstance(self.rate, np.ndarray):
             if len(self.rate.shape) == 2:
-                for i in xrange(len(self.astro_data.data)):
-                    for k in xrange(len(self.astro_data.data)):
+                for i in range(len(self.astro_data.data)):
+                    for k in range(len(self.astro_data.data)):
                         if np.random.rand() < self.rate[i][k]:
                             if self.lifetime_sigma is not None:
                                 lifetime = np.random.normal(
@@ -194,8 +192,8 @@ class TransientSeries:
                             self.cur_locations.append((i,k))
                             self.cur_durations.append(lifetime - (self.t-birth))
             else:
-                for i in xrange(len(self.astro_data.data)):
-                    for k in xrange(len(self.astro_data.data)):
+                for i in range(len(self.astro_data.data)):
+                    for k in range(len(self.astro_data.data)):
                         if np.random.rand() < self.rate[0][i][k]:
                             if self.lifetime_sigma is not None:
                                 lifetime = np.random.normal(
@@ -315,17 +313,17 @@ class TransientSeries:
             if len(self.rate.shape) == 2:
                 if self.rate.shape != self.shape:
                     raise ValueError("mismatched rate shape and shape of images")
-                for i in xrange(len(self.rate)):
-                    for k in xrange(len(self.rate[i])):
+                for i in range(len(self.rate)):
+                    for k in range(len(self.rate[i])):
                         if self.rate[i][k] > 1 or self.rate[i][k] < 0:
                             raise ValueError("Some rate values are not " + 
                                              "between 0 and 1 inclusive")
             if len(self.rate.shape) == 3:
                 if self.rate.shape != self.shape:
                     raise ValueError("mismatched rate shape and shape of images")
-                for i in xrange(len(self.rate)):
-                    for k in xrange(len(self.rate[i])):
-                        for j in xrange(len(self.rate[i][k])):
+                for i in range(len(self.rate)):
+                    for k in range(len(self.rate[i])):
+                        for j in range(len(self.rate[i][k])):
                             if (
                                     self.rate[i][k][j] > 1 
                                     or self.rate[i][k][j] < 0):
