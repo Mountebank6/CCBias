@@ -13,7 +13,7 @@ __version__ = "0.11"
 import numpy as np
 import astropy.nddata as nd
 import copy
-from makedata.tools import velmaker
+from .tools import velmaker
 
 _allowed_types = [np.uint8, np.uint16, np.uint32, np.uint64,
                   np.float16, np.float32, np.float64]
@@ -111,9 +111,9 @@ class TransientSeries:
         self.rate = rate
         self.data_type = data_type
         self.lifetime = float(lifetime)
-        self.lifetime_sigma = float(lifetime_sigma)
-        self.gauss_intensity = float(gauss_intensity)
-        self.gauss_sigma = float(gauss_sigma)
+        self.lifetime_sigma = (lifetime_sigma)
+        self.gauss_intensity = (gauss_intensity)
+        self.gauss_sigma = (gauss_sigma)
         self.astro_data = nd.NDDataRef(np.zeros(self.shape, self.data_type))
         
         if self.shape is None:
@@ -211,11 +211,16 @@ class TransientSeries:
                             self.cur_locations.append((i,k))
                             self.cur_durations.append(lifetime - (self.t-birth))
         #kill events that run out of life before t == 0.
+        badindex = []
         for i in range(len(self.cur_durations)):
+            self.cur_durations[i] -= self.dt
             if self.cur_durations[i] <= 0:
-                del self.cur_durations[i]
-                del self.cur_births[i]
-                del self.cur_durations[i]
+                badindex.insert(0, i)
+        for index in badindex:
+            del self.cur_durations[index]
+            del self.cur_births[index]
+            del self.cur_locations[index]
+        del badindex
     
     def new_population(self):
         """Generate fresh transient population and clear old one"""
@@ -235,21 +240,30 @@ class TransientSeries:
         
         #advance time and clean dead events
         self.t += self.dt
+        badindex = []
         for i in range(len(self.cur_durations)):
             self.cur_durations[i] -= self.dt
             if self.cur_durations[i] <= 0:
-                del self.cur_durations[i]
-                del self.cur_births[i]
-                del self.cur_durations[i]
+                badindex.insert(0, i)
+        for index in badindex:
+            del self.cur_durations[index]
+            del self.cur_births[index]
+            del self.cur_locations[index]
+        del badindex
                 
         #generate new events
         self.populate()
         #kill events that live their entire lifetime in between snapshots
+        badindex = []
         for i in range(len(self.cur_durations)):
+            self.cur_durations[i] -= self.dt
             if self.cur_durations[i] <= 0:
-                del self.cur_durations[i]
-                del self.cur_births[i]
-                del self.cur_durations[i]
+                badindex.insert(0, i)
+        for index in badindex:
+            del self.cur_durations[index]
+            del self.cur_births[index]
+            del self.cur_locations[index]
+        del badindex
         return
     
     def set_intensity_guassian(self,mag,sigma):
@@ -346,9 +360,12 @@ class TransientSeries:
         """Throw errors if types/values are wrong"""
         if self.lifetime_sigma is not None:
             if not isinstance(self.lifetime_sigma, float):
-                raise TypeError("Bad operand type for lifetime_sigma: "
-                                + str(type(self.lifetime_sigma)) 
-                                + "\n Must be float")
+                try: 
+                    self.lifetime_sigma = float(self.lifetime_sigma)
+                except:
+                    raise TypeError("Bad operand type for lifetime_sigma: "
+                                    + str(type(self.lifetime_sigma)) 
+                                    + "\n Must be float")
             if self.lifetime_sigma <= 0:
                 raise ValueError("Sigma of event lifetime is <= 0. Bad!")
     
@@ -356,9 +373,12 @@ class TransientSeries:
         """Throw errors if types/values are wrong"""
         if self.gauss_intensity is not None:
             if not isinstance(self.gauss_intensity, float):
-                raise TypeError("Bad operand type for gauss_intensity: "
-                                + str(type(self.gauss_intensity)) 
-                                + "\n Must be float")
+                try:
+                    self.gauss_intensity = float(self.gauss_intensity)
+                except:
+                    raise TypeError("Bad operand type for gauss_intensity: "
+                                    + str(type(self.gauss_intensity)) 
+                                    + "\n Must be float")
             if self.gauss_intensity < 0:
                 raise ValueError("Intensity must be >= 0")
     
@@ -366,9 +386,12 @@ class TransientSeries:
         """Throw errors if types/values are wrong"""
         if self.gauss_sigma is not None:
             if not isinstance(self.gauss_sigma, float):
-                raise TypeError("Bad operand type for gauss_sigma: "
-                                + str(type(self.gauss_sigma))
-                                + "\n Must be float")
+                try:
+                    self.gauss_sigma = float(self.gauss_sigma)
+                except:
+                    raise TypeError("Bad operand type for gauss_sigma: "
+                                    + str(type(self.gauss_sigma))
+                                    + "\n Must be float")
             if self.gauss_sigma <= 0:
                 raise ValueError("Sigma of event intensity is <= 0. Bad!")
                                 
