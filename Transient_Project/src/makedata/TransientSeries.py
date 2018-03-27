@@ -119,15 +119,15 @@ class TransientSeries:
         if self.dt is None:
             raise TypeError("Required argument 'dt' (pos 2) not found")
         
-        self.check_shape()
-        self.check_data_type()
-        self.check_dt()
-        self.check_rate()
-        self.check_n()
-        self.check_lifetime()
-        self.check_lifetime_sigma()
-        self.check_gauss_intensity()
-        self.check_gauss_sigma()
+        self.__check_shape()
+        self.__check_data_type()
+        self.__check_dt()
+        self.__check_rate()
+        self.__check_n()
+        self.__check_lifetime()
+        self.__check_lifetime_sigma()
+        self.__check_gauss_intensity()
+        self.__check_gauss_sigma()
 #TODO: Current code throws errors if some values are at their default
 #    of none. Make sure this is really what you want.
         self.new_population()
@@ -270,7 +270,7 @@ class TransientSeries:
             if self.astro_data.data[index] == 0:
                 self.astro_data.data[index] = np.random.normal(mag,sigma)
     
-    def check_shape(self):
+    def __check_shape(self):
         """Throw errors if types/values are wrong"""
         if not isinstance(self.shape, tuple):
             raise TypeError("Bad operand type for shape: " 
@@ -281,14 +281,14 @@ class TransientSeries:
             if not isinstance(x, int):
                 raise TypeError("shape tuple must contain ints")
         
-    def check_data_type(self):
+    def __check_data_type(self):
         """Throw errors if types/values are wrong"""
         if self.data_type not in _allowed_types:
             raise TypeError("Bad operand type for data_type: " 
                             + str(type(self.data_type)) + "\n Must be"
                             + "one of " + str(_allowed_types))
                 
-    def check_dt(self):
+    def __check_dt(self):
         """Throw errors if types/values are wrong"""
         if not (isinstance(self.dt, float) 
                 or isinstance(self.dt, int)):
@@ -298,7 +298,7 @@ class TransientSeries:
         if self.dt <= 0:
             raise ValueError("dt must be >0")
             
-    def check_rate(self):
+    def __check_rate(self):
         """Throw errors if types/values are wrong"""
         if not (isinstance(self.rate, float)
                 or isinstance(self.rate, np.ndarray)):
@@ -336,7 +336,7 @@ class TransientSeries:
                 raise ValueError("rate must be 2D or 3D numpy"
                                  +" array (or a float)")
     
-    def check_n(self):
+    def __check_n(self):
         """Throw errors if types/values are wrong"""
         if self.n is not None:
             if not isinstance(self.n, int):
@@ -345,7 +345,7 @@ class TransientSeries:
             if self.n < 1:
                 raise ValueError("n must be >= 1")
     
-    def check_lifetime(self):
+    def __check_lifetime(self):
         if self.lifetime is None:
             raise ValueError("event lifetime is a required parameter")
         else:
@@ -354,7 +354,7 @@ class TransientSeries:
             if self.lifetime <= 0:
                 raise ValueError("event lifetimes must be > 0")
     
-    def check_lifetime_sigma(self):
+    def __check_lifetime_sigma(self):
         """Throw errors if types/values are wrong"""
         if self.lifetime_sigma is not None:
             if not isinstance(self.lifetime_sigma, float):
@@ -367,7 +367,7 @@ class TransientSeries:
             if self.lifetime_sigma <= 0:
                 raise ValueError("Sigma of event lifetime is <= 0. Bad!")
     
-    def check_gauss_intensity(self):
+    def __check_gauss_intensity(self):
         """Throw errors if types/values are wrong"""
         if self.gauss_intensity is not None:
             if not isinstance(self.gauss_intensity, float):
@@ -380,7 +380,7 @@ class TransientSeries:
             if self.gauss_intensity < 0:
                 raise ValueError("Intensity must be >= 0")
     
-    def check_gauss_sigma(self):
+    def __check_gauss_sigma(self):
         """Throw errors if types/values are wrong"""
         if self.gauss_sigma is not None:
             if not isinstance(self.gauss_sigma, float):
@@ -439,7 +439,7 @@ class TransientSeries:
         temp = copy.copy(self.shape)
         self.shape = new
         try:
-            self.check_shape()
+            self.__check_shape()
         except:
             self.shape = temp
             raise ValueError("new not compliant with documentation")
@@ -448,7 +448,7 @@ class TransientSeries:
         temp = copy.copy(self.dt)
         self.dt = new
         try:
-            self.check_dt()
+            self.__check_dt()
         except:
             self.dt = temp
             raise ValueError("not compliant with documentation")
@@ -457,7 +457,7 @@ class TransientSeries:
         temp = copy.copy(self.n)
         self.n = new
         try:
-            self.check_n()
+            self.__check_n()
         except:
             self.n = temp
             raise ValueError("new not compliant with documentation")
@@ -466,7 +466,7 @@ class TransientSeries:
         temp = copy.copy(self.rate)
         self.rate = new
         try:
-            self.check_rate()
+            self.__check_rate()
         except:
             self.rate = temp
             raise ValueError("new not compliant with documentation")
@@ -475,7 +475,7 @@ class TransientSeries:
         temp = copy.copy(self.data_type)
         self.data_type = new
         try:
-            self.check_data_type()
+            self.__check_data_type()
         except:
             self.data_type = temp
             raise ValueError("new not compliant with documentation."
@@ -485,7 +485,7 @@ class TransientSeries:
         temp = copy.copy(self.lifetime)
         self.lifetime = new
         try:
-            self.check_lifetime()
+            self.__check_lifetime()
         except:
             self.lifetime = temp
             raise ValueError("new not compliant with documentation")
@@ -494,7 +494,7 @@ class TransientSeries:
         temp = copy.copy(self.lifetime_sigma)
         self.lifetime_sigma = new
         try:
-            self.check_lifetime_sigma()
+            self.__check_lifetime_sigma()
         except:
             self.lifetime_sigma = temp
             raise ValueError("new not compliant with documentation")
@@ -503,7 +503,7 @@ class TransientSeries:
         temp = copy.copy(self.gauss_intensity)
         self.gauss_intensity = new
         try:
-            self.check_gauss_intensity()
+            self.__check_gauss_intensity()
         except:
             self.gauss_intensity = temp
             raise ValueError("new not compliant with documentation")
@@ -512,7 +512,7 @@ class TransientSeries:
         temp = copy.copy(self.gauss_sigma)
         self.gauss_sigma = new
         try:
-            self.check_gauss_sigma()()
+            self.__check_gauss_sigma()
         except:
             self.gauss_sigma = temp
             raise ValueError("new not compliant with documentation")
