@@ -67,7 +67,8 @@ class TransientSeries:
     def __init__(self, shape=None, dt=None,
                  n=None, rate=None, lifetime=None, 
                  lifetime_sigma=None, data_type=np.uint16,
-                 gauss_intensity=None, gauss_sigma=None, unifv=None):
+                 gauss_intensity=None, gauss_sigma=None, unifv=None,
+                 filename=None):
         """Generate initial conditions from parameters.
         
         Args:
@@ -113,6 +114,9 @@ class TransientSeries:
         self.gauss_intensity = gauss_intensity
         self.gauss_sigma = gauss_sigma
         self.unifv = unifv
+        self.filename = filename
+        self.valid_i = range(shape[0])
+        self.valid_j = range(shape[1])
         self.astro_data = nd.CCDData(
                                      np.zeros(self.shape, self.data_type),
                                      unit="adu")
@@ -132,14 +136,15 @@ class TransientSeries:
         self.__check_gauss_intensity()
         self.__check_gauss_sigma()
         self.__check_unifv()
+        self.__check_filename()
 #TODO: Current code throws errors if some values are at their default
 #    of none. Make sure this is really what you want.
         self.new_population()
         if self.gauss_intensity is not None:
             if self.gauss_sigma is not None:
-                self.set_intensity_guassian(gauss_intensity, gauss_sigma)
+                self.set_intensity_gaussian(gauss_intensity, gauss_sigma)
             else:
-                self.set_intensity_guassian(gauss_intensity, 0.000001)
+                self.set_intensity_gaussian(gauss_intensity, 0.000001)
     
     def populate(self, initial=None):
         """Make some new events
@@ -161,64 +166,13 @@ class TransientSeries:
         3 dt's of time have passed.
         """
         if isinstance(self.rate, float):
-            for i in range(len(self.astro_data.data)):
-                for k in range(len(self.astro_data.data[i])):   
-                    if np.random.rand() < self.rate:
-                        if self.lifetime_sigma is not None:
-                            lifetime = np.random.normal(
-                                                self.lifetime,
-                                                self.lifetime_sigma)
-                        else:
-                            lifetime = self.lifetime
-                        if initial is True:
-                            birth = np.random.uniform(self.t - lifetime, self.t)
-                        else:
-                            birth = np.random.uniform(self.t - self.dt, self.t)
-                        self.cur_births.append(birth)
-                        self.cur_locs.append([i,k])
-                        self.cur_raw_locs.append([i,k])
-                        self.cur_durations.append(lifetime - (self.t-birth))
-                        self.cur_vels.append(velmaker.get_unifv())
+            self.__float_rate_populate(initial)
                         
         if isinstance(self.rate, np.ndarray):
             if len(self.rate.shape) == 2:
-                for i in range(len(self.astro_data.data)):
-                    for k in range(len(self.astro_data.data)):
-                        if np.random.rand() < self.rate[i][k]:
-                            if self.lifetime_sigma is not None:
-                                lifetime = np.random.normal(
-                                                    self.lifetime,
-                                                    self.lifetime_sigma)
-                            else:
-                                lifetime = self.lifetime
-                            if initial is True:
-                                birth = np.random.uniform(self.t - lifetime, self.t)
-                            else:
-                                birth = np.random.uniform(self.t - self.dt, self.t)
-                            self.cur_births.append(birth)
-                            self.cur_locs.append([i,k])
-                            self.cur_raw_locs.append([i,k])
-                            self.cur_durations.append(lifetime - (self.t-birth))
-                            self.cur_vels.append(self.unifv*velmaker.get_unifv())
+                self.__array2_rate_populate(initial)
             else:
-                for i in range(len(self.astro_data.data)):
-                    for k in range(len(self.astro_data.data)):
-                        if np.random.rand() < self.rate[0][i][k]:
-                            if self.lifetime_sigma is not None:
-                                lifetime = np.random.normal(
-                                                    self.lifetime,
-                                                    self.lifetime_sigma)
-                            else:
-                                lifetime = self.lifetime
-                            if initial is True:
-                                birth = np.random.uniform(self.t - lifetime, self.t)
-                            else:
-                                birth = np.random.uniform(self.t - self.dt, self.t)
-                            self.cur_births.append(birth)
-                            self.cur_locs.append([i,k])
-                            self.cur_raw_locs.append([i,k])
-                            self.cur_durations.append(lifetime - (self.t-birth))
-                            self.cur_vels.append(velmaker.get_unifv())
+                self.__array3_rate_populate(initial)
         #kill events that run out of life before t == 0.
         badindex = []
         for i in range(len(self.cur_durations)):
@@ -232,6 +186,7 @@ class TransientSeries:
             del self.cur_raw_locs[index]
             del self.cur_vels[index]
         del badindex
+        self.__update_image_pointwise()
     
     def new_population(self):
         """Generate fresh transient population and clear old one"""
@@ -245,18 +200,15 @@ class TransientSeries:
         self.cur_vels = []
         self.populate(initial=True)
     
-    def advance(self, filename=None):
-        if filename is not None:
-            if isinstance(filename, str):
-                self.astro_data.write(filename)
-            else:
-                raise TypeError("Bad filename type")
+    def advance(self):
+        if self.filename is not None:
+            self.astro_data.write(self.filename + str(self.t) + ".fits")
         #tick event velocities
         for i in range(len(self.cur_vels)):
             self.cur_raw_locs[i][0] += self.dt*self.cur_vels[i][0]
             self.cur_raw_locs[i][1] += self.dt*self.cur_vels[i][1]
-            self.cur_locs[i][0] = round(self.cur_raw_locs[i][0])
-            self.cur_locs[i][1] = round(self.cur_raw_locs[i][1])
+            self.cur_locs[i][0] = int(round(self.cur_raw_locs[i][0]))
+            self.cur_locs[i][1] = int(round(self.cur_raw_locs[i][1]))
         #advance time and clean dead events
         self.t += self.dt
         badindex = []
@@ -289,11 +241,92 @@ class TransientSeries:
         del badindex
         return
     
-    def set_intensity_guassian(self,mag,sigma):
+    def advance_to_end(self):
+        if self.n is None:
+            raise ValueError("n must be given")
+        while self.t < self.dt*self.n:
+            self.advance()
+    
+    def set_intensity_gaussian(self,mag,sigma):
         """Give new events gaussian intensity"""
         for index in self.cur_locs:
             if self.astro_data.data[index] == 0:
                 self.astro_data.data[index] = np.random.normal(mag,sigma)
+    
+    def __update_image_pointwise(self):
+        self.astro_data.data = np.zeros(self.shape, dtype=self.data_type)
+        try:
+            max_value = np.iinfo(self.data_type).max
+        except:
+            pass
+        try:
+            max_value = np.finfo(self.data_type).max
+        except:
+            pass
+        for loc in self.cur_locs:
+            if loc[0] in self.valid_i:
+                if loc[1] in self.valid_j:
+                    self.astro_data.data[tuple(loc)] = max_value
+    
+    def __float_rate_populate(self, initial):
+        for i in range(len(self.astro_data.data)):
+            for k in range(len(self.astro_data.data[i])):   
+                if np.random.rand() < self.rate:
+                    if self.lifetime_sigma is not None:
+                        lifetime = np.random.normal(
+                                            self.lifetime,
+                                            self.lifetime_sigma)
+                    else:
+                        lifetime = self.lifetime
+                    if initial is True:
+                        birth = np.random.uniform(self.t - lifetime, self.t)
+                    else:
+                        birth = np.random.uniform(self.t - self.dt, self.t)
+                    self.cur_births.append(birth)
+                    self.cur_locs.append([i,k])
+                    self.cur_raw_locs.append([i,k])
+                    self.cur_durations.append(lifetime - (self.t-birth))
+                    self.cur_vels.append(velmaker.get_unifv())
+    
+    def __array2_rate_populate(self, initial):
+        for i in range(len(self.astro_data.data)):
+            for k in range(len(self.astro_data.data)):
+                if np.random.rand() < self.rate[i][k]:
+                    if self.lifetime_sigma is not None:
+                        lifetime = np.random.normal(
+                                            self.lifetime,
+                                            self.lifetime_sigma)
+                    else:
+                        lifetime = self.lifetime
+                    if initial is True:
+                        birth = np.random.uniform(self.t - lifetime, self.t)
+                    else:
+                        birth = np.random.uniform(self.t - self.dt, self.t)
+                    self.cur_births.append(birth)
+                    self.cur_locs.append([i,k])
+                    self.cur_raw_locs.append([i,k])
+                    self.cur_durations.append(lifetime - (self.t-birth))
+                    self.cur_vels.append(self.unifv*velmaker.get_unifv())
+                            
+    def __array3_rate_populate(self, initial):
+        for i in range(len(self.astro_data.data)):
+            for k in range(len(self.astro_data.data)):
+                if np.random.rand() < self.rate[0][i][k]:
+                    if self.lifetime_sigma is not None:
+                        lifetime = np.random.normal(
+                                            self.lifetime,
+                                            self.lifetime_sigma)
+                    else:
+                        lifetime = self.lifetime
+                    if initial is True:
+                        birth = np.random.uniform(self.t - lifetime, self.t)
+                    else:
+                        birth = np.random.uniform(self.t - self.dt, self.t)
+                    self.cur_births.append(birth)
+                    self.cur_locs.append([i,k])
+                    self.cur_raw_locs.append([i,k])
+                    self.cur_durations.append(lifetime - (self.t-birth))
+                    self.cur_vels.append(velmaker.get_unifv())
     
     def __check_shape(self):
         """Throw errors if types/values are wrong"""
@@ -429,6 +462,13 @@ class TransientSeries:
                                     + "\n Must be float")
             if self.unifv < 0:
                 raise ValueError("unifv must be positive")
+    
+    def __check_filename(self):
+        if self.filename is not None:
+            if not isinstance(self.filename, str):
+                raise TypeError("Bad operand type for gauss_intensity: "
+                                    + str(type(self.filename)) 
+                                    + "\n Must be string")
                                 
     def get_shape(self):
         return self.shape

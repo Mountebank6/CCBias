@@ -9,6 +9,8 @@ if __name__ == '__main__':
 
 import makedata.TransientSeries as trans
 
-#gay = trans.TransientSeries(shape=(2000,2000),dt=1,n=500,rate=0.000002,lifetime=0.75)
-#gay.advance()
+#gray = trans.TransientSeries(shape=(500,500),dt=1,n=300,
+#                            rate=0.00002,lifetime=30,lifetime_sigma=5,
+#                            unifv=1,filename="testing")
+#gray.advance_to_end()
 #print("done")

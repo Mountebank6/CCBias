@@ -10,9 +10,9 @@ __all__ = ['get_velocity']
 
 vels = []
 for i in range(100000):
-    x = np.random.rand()
-    y = np.random.rand()
-    z = np.random.rand()
+    x = 2*np.random.rand() - 1
+    y = 2*np.random.rand() - 1
+    z = 2*np.random.rand() - 1
     mag = math.sqrt(x**2+y**2+z**2)
     x = x/mag
     y = y/mag
