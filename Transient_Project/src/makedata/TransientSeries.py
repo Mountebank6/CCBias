@@ -31,17 +31,17 @@ class TransientSeries:
         gauss_intensity
         gauss_sigma
     Attributes:
-        cur_locations: list of 2-tuples
+        cur_locs: list of 2-tuples
             lists the locations of the centers of the currently living events
-                cur_locations[i], cur_births[i], and 
+                cur_locs[i], cur_births[i], and 
                 cur_durations[i] all refer to the same event
         cur_births: list of floats
             lists the birthtimes of the currently living events
-                cur_locations[i], cur_births[i], and 
+                cur_locs[i], cur_births[i], and 
                 cur_durations[i] all refer to the same event
         cur_durations: list of floats
             lists how much time remaining of life the currently living events have
-                cur_locations[i], cur_births[i], and 
+                cur_locs[i], cur_births[i], and 
                 cur_durations[i] all refer to the same event   
         t: float
             the current time. Always an integer multuple of dt. 
@@ -55,9 +55,9 @@ class TransientSeries:
             set t to 0. set astro_data to the zero array of shape given
             by self.shape. Generate a new random set of events.
         set_intensity_gaussian():
-            [SOON TO BE DEPRECATED]
-            Look through astro_data and cur_locations. If 
-            cur_locations indicates an event exists at an index, but 
+            ["SOON" TO BE DEPRECATED]
+            Look through astro_data and cur_locs. If 
+            cur_locs indicates an event exists at an index, but 
             the intensity at that index is 0, give that pixel in astro_data
             a gaussian intensity with mean and standard deviation given by
             gauss_intensity and gauss_sigma respectively.
@@ -67,7 +67,7 @@ class TransientSeries:
     def __init__(self, shape=None, dt=None,
                  n=None, rate=None, lifetime=None, 
                  lifetime_sigma=None, data_type=np.uint16,
-                 gauss_intensity=None, gauss_sigma=None):
+                 gauss_intensity=None, gauss_sigma=None, unifv=None):
         """Generate initial conditions from parameters.
         
         Args:
@@ -109,10 +109,13 @@ class TransientSeries:
         self.rate = rate
         self.data_type = data_type
         self.lifetime = float(lifetime)
-        self.lifetime_sigma = (lifetime_sigma)
-        self.gauss_intensity = (gauss_intensity)
-        self.gauss_sigma = (gauss_sigma)
-        self.astro_data = nd.NDDataRef(np.zeros(self.shape, self.data_type))
+        self.lifetime_sigma = lifetime_sigma
+        self.gauss_intensity = gauss_intensity
+        self.gauss_sigma = gauss_sigma
+        self.unifv = unifv
+        self.astro_data = nd.CCDData(
+                                     np.zeros(self.shape, self.data_type),
+                                     unit="adu")
         
         if self.shape is None:
             raise TypeError("Required argument 'shape' (pos 1) not found")
@@ -128,13 +131,15 @@ class TransientSeries:
         self.__check_lifetime_sigma()
         self.__check_gauss_intensity()
         self.__check_gauss_sigma()
+        self.__check_unifv()
 #TODO: Current code throws errors if some values are at their default
 #    of none. Make sure this is really what you want.
         self.new_population()
-        if (
-                self.gauss_intensity is not None 
-                and self.gauss_sigma is not None):
-            self.set_intensity_guassian(gauss_intensity, gauss_sigma)
+        if self.gauss_intensity is not None:
+            if self.gauss_sigma is not None:
+                self.set_intensity_guassian(gauss_intensity, gauss_sigma)
+            else:
+                self.set_intensity_guassian(gauss_intensity, 0.000001)
     
     def populate(self, initial=None):
         """Make some new events
@@ -170,8 +175,10 @@ class TransientSeries:
                         else:
                             birth = np.random.uniform(self.t - self.dt, self.t)
                         self.cur_births.append(birth)
-                        self.cur_locations.append((i,k))
+                        self.cur_locs.append([i,k])
+                        self.cur_raw_locs.append([i,k])
                         self.cur_durations.append(lifetime - (self.t-birth))
+                        self.cur_vels.append(velmaker.get_unifv())
                         
         if isinstance(self.rate, np.ndarray):
             if len(self.rate.shape) == 2:
@@ -189,8 +196,10 @@ class TransientSeries:
                             else:
                                 birth = np.random.uniform(self.t - self.dt, self.t)
                             self.cur_births.append(birth)
-                            self.cur_locations.append((i,k))
+                            self.cur_locs.append([i,k])
+                            self.cur_raw_locs.append([i,k])
                             self.cur_durations.append(lifetime - (self.t-birth))
+                            self.cur_vels.append(self.unifv*velmaker.get_unifv())
             else:
                 for i in range(len(self.astro_data.data)):
                     for k in range(len(self.astro_data.data)):
@@ -206,8 +215,10 @@ class TransientSeries:
                             else:
                                 birth = np.random.uniform(self.t - self.dt, self.t)
                             self.cur_births.append(birth)
-                            self.cur_locations.append((i,k))
+                            self.cur_locs.append([i,k])
+                            self.cur_raw_locs.append([i,k])
                             self.cur_durations.append(lifetime - (self.t-birth))
+                            self.cur_vels.append(velmaker.get_unifv())
         #kill events that run out of life before t == 0.
         badindex = []
         for i in range(len(self.cur_durations)):
@@ -217,15 +228,21 @@ class TransientSeries:
         for index in badindex:
             del self.cur_durations[index]
             del self.cur_births[index]
-            del self.cur_locations[index]
+            del self.cur_locs[index]
+            del self.cur_raw_locs[index]
+            del self.cur_vels[index]
         del badindex
     
     def new_population(self):
         """Generate fresh transient population and clear old one"""
+        #locs is the integer values locations
+        #raw_locs is the float valued locations
         self.t = 0.0
-        self.cur_locations = []
+        self.cur_locs = []
+        self.cur_raw_locs = []
         self.cur_births = []
         self.cur_durations = []
+        self.cur_vels = []
         self.populate(initial=True)
     
     def advance(self, filename=None):
@@ -234,8 +251,12 @@ class TransientSeries:
                 self.astro_data.write(filename)
             else:
                 raise TypeError("Bad filename type")
-        #TODO: add velocity ticking
-        
+        #tick event velocities
+        for i in range(len(self.cur_vels)):
+            self.cur_raw_locs[i][0] += self.dt*self.cur_vels[i][0]
+            self.cur_raw_locs[i][1] += self.dt*self.cur_vels[i][1]
+            self.cur_locs[i][0] = round(self.cur_raw_locs[i][0])
+            self.cur_locs[i][1] = round(self.cur_raw_locs[i][1])
         #advance time and clean dead events
         self.t += self.dt
         badindex = []
@@ -246,7 +267,9 @@ class TransientSeries:
         for index in badindex:
             del self.cur_durations[index]
             del self.cur_births[index]
-            del self.cur_locations[index]
+            del self.cur_locs[index]
+            del self.cur_raw_locs[index]
+            del self.cur_vels[index]
         del badindex
                 
         #generate new events
@@ -260,13 +283,15 @@ class TransientSeries:
         for index in badindex:
             del self.cur_durations[index]
             del self.cur_births[index]
-            del self.cur_locations[index]
+            del self.cur_locs[index]
+            del self.cur_raw_locs[index]
+            del self.cur_vels[index]
         del badindex
         return
     
     def set_intensity_guassian(self,mag,sigma):
         """Give new events gaussian intensity"""
-        for index in self.cur_locations:
+        for index in self.cur_locs:
             if self.astro_data.data[index] == 0:
                 self.astro_data.data[index] = np.random.normal(mag,sigma)
     
@@ -392,6 +417,18 @@ class TransientSeries:
                                     + "\n Must be float")
             if self.gauss_sigma <= 0:
                 raise ValueError("Sigma of event intensity is <= 0. Bad!")
+    
+    def __check_unifv(self):
+        if self.unifv is not None:
+            if not isinstance(self.unifv, float):
+                try:
+                    self.unifv = float(self.unifv)
+                except:
+                    raise TypeError("Bad operand type for gauss_intensity: "
+                                    + str(type(self.unifv)) 
+                                    + "\n Must be float")
+            if self.unifv < 0:
+                raise ValueError("unifv must be positive")
                                 
     def get_shape(self):
         return self.shape
@@ -427,7 +464,7 @@ class TransientSeries:
         return self.t
     
     def get_cur_locations(self):
-        return self.cur_locations
+        return self.cur_locs
     
     def get_cur_births(self):
         return self.cur_births

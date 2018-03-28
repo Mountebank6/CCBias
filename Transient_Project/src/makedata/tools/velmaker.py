@@ -17,7 +17,8 @@ for i in range(100000):
     x = x/mag
     y = y/mag
     z = z/mag
-    vels.append((x,y))
+    vels.append(np.asanyarray([y,x]))
+    #choose y before x to mimic matrix-style notation
 
 def get_unifv():
     """Return a random element of the uniform velocity distribution"""
