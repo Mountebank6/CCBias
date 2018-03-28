@@ -176,7 +176,6 @@ class TransientSeries:
         #kill events that run out of life before t == 0.
         badindex = []
         for i in range(len(self.cur_durations)):
-            self.cur_durations[i] -= self.dt
             if self.cur_durations[i] <= 0:
                 badindex.insert(0, i)
         for index in badindex:
@@ -229,7 +228,6 @@ class TransientSeries:
         #kill events that live their entire lifetime in between snapshots
         badindex = []
         for i in range(len(self.cur_durations)):
-            self.cur_durations[i] -= self.dt
             if self.cur_durations[i] <= 0:
                 badindex.insert(0, i)
         for index in badindex:
