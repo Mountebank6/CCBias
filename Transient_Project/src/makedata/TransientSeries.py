@@ -202,12 +202,7 @@ class TransientSeries:
     def advance(self):
         if self.filename is not None:
             self.astro_data.write(self.filename + str(self.t) + ".fits")
-        #tick event velocities
-        for i in range(len(self.cur_vels)):
-            self.cur_raw_locs[i][0] += self.dt*self.cur_vels[i][0]
-            self.cur_raw_locs[i][1] += self.dt*self.cur_vels[i][1]
-            self.cur_locs[i][0] = int(round(self.cur_raw_locs[i][0]))
-            self.cur_locs[i][1] = int(round(self.cur_raw_locs[i][1]))
+        
         #advance time and clean dead events
         self.t += self.dt
         badindex = []
@@ -222,6 +217,14 @@ class TransientSeries:
             del self.cur_raw_locs[index]
             del self.cur_vels[index]
         del badindex
+        
+        #tick event velocities
+        for i in range(len(self.cur_vels)):
+            self.cur_raw_locs[i][0] += self.dt*self.cur_vels[i][0]
+            self.cur_raw_locs[i][1] += self.dt*self.cur_vels[i][1]
+            self.cur_locs[i][0] = int(round(self.cur_raw_locs[i][0]))
+            self.cur_locs[i][1] = int(round(self.cur_raw_locs[i][1]))
+        
                 
         #generate new events
         self.populate()
