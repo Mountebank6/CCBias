@@ -147,11 +147,6 @@ class TransientSeries:
         self.__check_filename()
 
         self.new_population()
-        if self.gauss_intensity is not None:
-            if self.gauss_sigma is not None:
-                self.set_intensity_gaussian(gauss_intensity, gauss_sigma)
-            else:
-                self.set_intensity_gaussian(gauss_intensity, 0.000001)
     
     def populate(self):
         """Make some new events
@@ -183,10 +178,7 @@ class TransientSeries:
         #kill events that run out of life before t == 0.
         self.__kill_dead_events(tick_time=False)
         
-        if self.gauss_intensity is not None and self.gauss_sigma is not None:
-            self.__update_image_gaussian()
-        else:
-            self.__update_image_pointwise()
+        self.__update_image()
     
     def new_population(self):
         """Generate fresh transient population and clear old one"""
@@ -240,15 +232,6 @@ class TransientSeries:
             raise ValueError("n must be given")
         while self.t < self.dt*self.n:
             self.advance(self.filename)
-    
-    def set_intensity_gaussian(self,mag,sigma):
-        """Give new events gaussian intensity
-        
-        REALLY STUPID!!!! DON'T USE THIS!!!!
-        """
-        for index in self.cur_locs:
-            if self.astro_data.data[index] == 0:
-                self.astro_data.data[index] = np.random.normal(mag,sigma)
                 
     def __assign_intensity(self):
         if self.gauss_intensity is not None:
@@ -293,33 +276,10 @@ class TransientSeries:
     def __update_image(self):
         self.astro_data.data = np.zeros(self.shape, dtype=self.data_type)
         for i in range(len(self.cur_locs)):
-            if self.cur_locs[i][0] in self.valid_i:
-                if self.cur_locs[i][1] in self.valid_j:
-                    self.astro_data.data[tuple(self.cur_locs[i])] = (
-                                                            self.cur_intens[i])
-    
-    def __update_image_pointwise(self):
-        self.astro_data.data = np.zeros(self.shape, dtype=self.data_type)
-        try:
-            max_value = np.iinfo(self.data_type).max
-        except:
-            pass
-        try:
-            max_value = np.finfo(self.data_type).max
-        except:
-            pass
-        for loc in self.cur_locs:
-            if loc[0] in self.valid_i:
-                if loc[1] in self.valid_j:
-                    self.astro_data.data[tuple(loc)] = max_value
-    
-    def __update_image_gaussian(self):
-        self.astro_data.data = np.zeros(self.shape, dtype=self.data_type)
-        for loc in self.cur_locs:
-            if loc[0] in self.valid_i and loc[1] in self.valid_j:
-                self.astro_data.data[tuple(loc)] = np.random.normal(
-                                                            self.gauss_intensity,
-                                                            self.gauss_sigma)
+            event = self.cur_locs[i]
+            inten = self.cur_intens[i]
+            if event[0] in self.valid_i and event[1] in self.valid_j:
+                self.astro_data.data[tuple(event)] = (inten)
     
     def __float_rate_populate(self):
         for i in range(len(self.astro_data.data)):

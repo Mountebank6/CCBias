@@ -6,7 +6,7 @@ Generate random velocities projected onto the sky
 import numpy as np
 import math
 
-__all__ = ['get_velocity']
+__all__ = ['get_unifv']
 
 vels = []
 for i in range(100000):
