@@ -174,18 +174,12 @@ class TransientSeries:
             else:
                 self.__array3_rate_populate(initial)
         #kill events that run out of life before t == 0.
-        badindex = []
-        for i in range(len(self.cur_durations)):
-            if self.cur_durations[i] <= 0:
-                badindex.insert(0, i)
-        for index in badindex:
-            del self.cur_durations[index]
-            del self.cur_births[index]
-            del self.cur_locs[index]
-            del self.cur_raw_locs[index]
-            del self.cur_vels[index]
-        del badindex
-        self.__update_image_pointwise()
+        self.__kill_dead_events(tick_time=False)
+        
+        if self.gauss_intensity is not None and self.gauss_sigma is not None:
+            self.__update_image_gaussian()
+        else:
+            self.__update_image_pointwise()
     
     def new_population(self):
         """Generate fresh transient population and clear old one"""
@@ -205,18 +199,7 @@ class TransientSeries:
         
         #advance time and clean dead events
         self.t += self.dt
-        badindex = []
-        for i in range(len(self.cur_durations)):
-            self.cur_durations[i] -= self.dt
-            if self.cur_durations[i] <= 0:
-                badindex.insert(0, i)
-        for index in badindex:
-            del self.cur_durations[index]
-            del self.cur_births[index]
-            del self.cur_locs[index]
-            del self.cur_raw_locs[index]
-            del self.cur_vels[index]
-        del badindex
+        self.__kill_dead_events(tick_time=True)
         
         #tick event velocities
         for i in range(len(self.cur_vels)):
@@ -229,17 +212,7 @@ class TransientSeries:
         #generate new events
         self.populate()
         #kill events that live their entire lifetime in between snapshots
-        badindex = []
-        for i in range(len(self.cur_durations)):
-            if self.cur_durations[i] <= 0:
-                badindex.insert(0, i)
-        for index in badindex:
-            del self.cur_durations[index]
-            del self.cur_births[index]
-            del self.cur_locs[index]
-            del self.cur_raw_locs[index]
-            del self.cur_vels[index]
-        del badindex
+        self.__kill_dead_events(tick_time=False)
         return
     
     def advance_to_end(self):
@@ -253,6 +226,20 @@ class TransientSeries:
         for index in self.cur_locs:
             if self.astro_data.data[index] == 0:
                 self.astro_data.data[index] = np.random.normal(mag,sigma)
+    
+    def __kill_dead_events(self, tick_time=False):
+        badindex = []
+        for i in range(len(self.cur_durations)):
+            if tick_time is True:
+                self.cur_durations[i] -= self.dt
+            if self.cur_durations[i] <= 0:
+                badindex.insert(0, i)
+        for index in badindex:
+            del self.cur_durations[index]
+            del self.cur_births[index]
+            del self.cur_locs[index]
+            del self.cur_raw_locs[index]
+            del self.cur_vels[index]
     
     def __update_image_pointwise(self):
         self.astro_data.data = np.zeros(self.shape, dtype=self.data_type)
@@ -268,6 +255,14 @@ class TransientSeries:
             if loc[0] in self.valid_i:
                 if loc[1] in self.valid_j:
                     self.astro_data.data[tuple(loc)] = max_value
+    
+    def __update_image_gaussian(self):
+        self.astro_data.data = np.zeros(self.shape, dtype=self.data_type)
+        for loc in self.cur_locs:
+            if loc[0] in self.valid_i and loc[1] in self.valid_j:
+                self.astro_data.data[tuple(loc)] = np.random.normal(
+                                                            self.gauss_intensity,
+                                                            self.gauss_sigma)
     
     def __float_rate_populate(self, initial):
         for i in range(len(self.astro_data.data)):
