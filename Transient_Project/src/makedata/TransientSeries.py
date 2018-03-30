@@ -6,7 +6,6 @@ Generate fake sample data for testing.
 
 
 __author__ = "Theo Faridani"
-__version__ = "0.11"
 
 import numpy as np
 import astropy.nddata as nd
@@ -17,7 +16,6 @@ import math
 _allowed_types = [np.uint8, np.uint16, np.uint32, np.uint64,
                   np.float16, np.float32, np.float64]
 
-#comment
 class TransientSeries:
     """Handle creation and iteration of image set
         
@@ -100,7 +98,8 @@ class TransientSeries:
                 Must be one of [np.uint8, np.uint16, np.uint32, np.uint64,
                 np.float16, np.float32, np.float64]
             gauss_intensity: float
-                Average intensity of the events
+                Average intensity of the events. It is a unitless fraction 
+                of the maximum value allowed by the data type
             gauss_sigma: float
                 standard deviation of the intensities of the events  
             unifv: float
@@ -234,20 +233,24 @@ class TransientSeries:
             self.advance(self.filename)
                 
     def __assign_intensity(self):
+        
+        inten = self.gauss_intensity
+        sigm = self.gauss_sigma
+        try:
+            max_value = np.iinfo(self.data_type).max
+        except:
+            pass
+        try:
+            max_value = np.finfo(self.data_type).max
+        except:
+            pass
+        
         if self.gauss_intensity is not None:
             if self.gauss_sigma is None:
-                return np.random.normal(self.gauss_intensity, 0.000001)
+                return max_value*np.random.normal(inten, 0.000001)
             else:
-                return np.random.normal(self.gauss_intensity, self.gauss_sigma)
+                return max_value*np.random.normal(inten, sigm)
         else:
-            try:
-                max_value = np.iinfo(self.data_type).max
-            except:
-                pass
-            try:
-                max_value = np.finfo(self.data_type).max
-            except:
-                pass
             return max_value
     
     def __append_event(self, birth, loc, duration, vel, inten):
