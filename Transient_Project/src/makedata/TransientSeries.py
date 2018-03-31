@@ -204,9 +204,10 @@ class TransientSeries:
         
         Set filename to None in order to not write
         """
-        if filename is not None:
-            filename = self.filename
-            self.astro_data.write(filename + str(self.t) + ".fits")
+        if self.filename is not None:
+            if filename is not None:
+                filename = self.filename
+                self.astro_data.write(filename + str(self.t) + ".fits")
         
         #advance time and clean dead events
         self.t += self.dt
@@ -276,6 +277,13 @@ class TransientSeries:
             del self.cur_vels[index]
             del self.cur_intens[index]
     
+    def __gen_lifetime(self, mean, sigm):
+        if sigm is not None:
+            life = np.random.normal(mean, sigm)
+        else:
+            life = mean
+        return life
+    
     def __update_image(self):
         self.astro_data.data = np.zeros(self.shape, dtype=self.data_type)
         for i in range(len(self.cur_locs)):
@@ -288,12 +296,9 @@ class TransientSeries:
         for i in range(len(self.astro_data.data)):
             for k in range(len(self.astro_data.data[i])):   
                 if np.random.rand() < self.rate:
-                    if self.lifetime_sigma is not None:
-                        lifetime = np.random.normal(
-                                            self.lifetime,
-                                            self.lifetime_sigma)
-                    else:
-                        lifetime = self.lifetime
+                    lifetime = self.__gen_lifetime(
+                                                    self.lifetime, 
+                                                    self.lifetime_sigma)
                     birth = np.random.uniform(self.t - self.dt, self.t)
                     self.__append_event(
                                         birth, [i,k], lifetime - (self.t-birth), 
@@ -304,12 +309,9 @@ class TransientSeries:
         for i in range(len(self.astro_data.data)):
             for k in range(len(self.astro_data.data)):
                 if np.random.rand() < self.rate[i][k]:
-                    if self.lifetime_sigma is not None:
-                        lifetime = np.random.normal(
-                                            self.lifetime,
-                                            self.lifetime_sigma)
-                    else:
-                        lifetime = self.lifetime
+                    lifetime = self.__gen_lifetime(
+                                                    self.lifetime, 
+                                                    self.lifetime_sigma)
                     birth = np.random.uniform(self.t - self.dt, self.t)
                     self.__append_event(
                                         birth, [i,k], lifetime - (self.t-birth), 
@@ -320,12 +322,9 @@ class TransientSeries:
         for i in range(len(self.astro_data.data)):
             for k in range(len(self.astro_data.data)):
                 if np.random.rand() < self.rate[int(round(self.t/self.dt))][i][k]:
-                    if self.lifetime_sigma is not None:
-                        lifetime = np.random.normal(
-                                            self.lifetime,
-                                            self.lifetime_sigma)
-                    else:
-                        lifetime = self.lifetime
+                    lifetime = self.__gen_lifetime(
+                                                    self.lifetime, 
+                                                    self.lifetime_sigma)
                     birth = np.random.uniform(self.t - self.dt, self.t)
                     self.__append_event(
                                         birth, [i,k], lifetime - (self.t-birth), 
@@ -504,14 +503,26 @@ class TransientSeries:
     def get_astro_data(self):
         return self.astro_data
     
+    def get_astro_data_data(self):
+        return self.astro_data.data
+    
     def get_current_time(self):
         return self.t
     
-    def get_cur_locations(self):
+    def get_cur_locs(self):
         return self.cur_locs
+    
+    def get_cur_raw_locs(self):
+        return self.cur_raw_locs
     
     def get_cur_births(self):
         return self.cur_births
+    
+    def get_cur_vels(self):
+        return self.cur_vels
+    
+    def get_cur_intens(self):
+        return self.cur_intens
     
     def get_cur_durations(self):
         return self.cur_durations

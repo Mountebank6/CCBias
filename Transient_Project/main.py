@@ -10,18 +10,39 @@ if __name__ == '__main__':
 import numpy as np
 import makedata.TransientSeries as trans
 import makedata.tools.FOV as fov
-import astropy.io.fits as fit
+import imageio as img
 
-#gray = trans.TransientSeries(shape=(500,500),dt=1,n=500,
-#                            rate=0.00002,lifetime=30,lifetime_sigma=5,
-#                            unifv=7,filename="testing")
-#gray.advance_to_end()
-#print("done")
+number = 50
+shap = (500,500)
+mean = 30
+sigm = 20
 
-#look = []
-#for k in range(500):
-#    look.append((k,k))
-#for i in range(500):
-#    fly = fit.getdata("testing%s.0.fits" %i)
-#    fov.apply_circle_fov(np.uint16, fit.getdata("testing%s.0.fits" %i), 
-#                         100, look[i], "spotlight" + str(i))
+gray = trans.TransientSeries(shape=shap,dt=1,n=number,
+                            rate=0.00002,lifetime=mean,lifetime_sigma=sigm,             
+                            unifv=7, data_type=np.uint8)
+
+bigdata = np.zeros((number,shap[0],shap[1],4), dtype=np.uint8)
+#bigdatacovered = np.zeros((number,shap[0],shap[1],4), dtype=np.uint8)
+for n in range(number):
+    for i in range(len(gray.get_cur_locs())):
+        if (gray.get_cur_locs()[i][0] in range(shap[0]) 
+                and gray.get_cur_locs()[i][1] in range(shap[1])):
+            loc = gray.get_cur_locs()[i]
+            if (
+                    gray.get_cur_durations()[i] 
+                    + gray.get_current_time() 
+                    - gray.get_cur_births()[i]) > mean + sigm:
+                ass = bigdata[n][gray.get_cur_locs()[i]]
+                bigdata[n][loc[0]][loc[1]] = [0,255,0,255]
+            else:
+                bigdata[n][loc[0]][loc[1]] = [255,255,255,255]
+    gray.advance(None)
+
+img.mimwrite('uncovered.gif',format = 'gif-pil', 
+             ims = bigdata, fps = 30)
+#TODO make this make sense
+for i in range(len(bigdata)):
+    bigdata[i] = fov.apply_dynamic_img_scatter(bigdata[i], 0.85)
+    
+img.mimwrite('covered.gif',format = 'gif-pil', 
+             ims = bigdata, fps = 30)
