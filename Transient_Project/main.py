@@ -12,7 +12,7 @@ import makedata.TransientSeries as trans
 import makedata.tools.FOV as fov
 import imageio as img
 
-number = 50
+number = 500
 shap = (500,500)
 mean = 30
 sigm = 20
@@ -37,12 +37,14 @@ for n in range(number):
             else:
                 bigdata[n][loc[0]][loc[1]] = [255,255,255,255]
     gray.advance(None)
-
+print("entering gifmaking")
 img.mimwrite('uncovered.gif',format = 'gif-pil', 
              ims = bigdata, fps = 30)
 #TODO make this make sense
+print("gif1 done")
 for i in range(len(bigdata)):
     bigdata[i] = fov.apply_dynamic_img_scatter(bigdata[i], 0.85)
-    
+
+print("making final gif")    
 img.mimwrite('covered.gif',format = 'gif-pil', 
              ims = bigdata, fps = 30)
