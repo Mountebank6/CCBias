@@ -13,9 +13,10 @@ import copy
 from .tools import velmaker
 import math
 
+
 _allowed_types = [np.uint8, np.uint16, np.uint32, np.uint64,
                   np.float16, np.float32, np.float64]
-
+                  
 class TransientSeries:
     """Handle creation and iteration of image set
         
@@ -388,14 +389,17 @@ class TransientSeries:
                             if (
                                     self.rate[i][k][j] > 1 
                                     or self.rate[i][k][j] < 0):
-                                raise ValueError("Some rate values are not " + 
-                                                 "between 0 and 1 inclusive")
+                                raise ValueError(
+                                            "Some rate values are not " + 
+                                            "between 0 and 1 inclusive")
                 if self.n > self.rate.shape[0]:
-                    raise ValueError("n is greater than number of individual" + 
-                                     "probability arrays in rate")
+                    raise ValueError(
+                                "n is greater than number of " + 
+                                "individual probability arrays in rate")
             else:
-                raise ValueError("rate must be 2D or 3D numpy"
-                                 +" array (or a float)")
+                raise ValueError(
+                            "rate must be 2D or 3D numpy" + 
+                            " array (or a float)")
     
     def __check_n(self):
         """Throw errors if types/values are wrong"""

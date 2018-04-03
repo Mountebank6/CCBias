@@ -8,8 +8,8 @@ if __name__ == '__main__':
     pass
 
 import numpy as np
-import makedata.TransientSeries as trans
-import makedata.tools.FOV as fov
+import src.makedata.TransientSeries as trans
+import src.makedata.tools.FOV as fov
 import imageio as img
 
 number = 500
