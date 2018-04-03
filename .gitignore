@@ -1,3 +1,6 @@
 *.fits
 *.pyc
 *.gif
+Transient_Project/.vscode/settings.json
+*.project
+*.pydevproject
