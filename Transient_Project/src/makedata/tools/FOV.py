@@ -11,7 +11,7 @@ import numpy as np
 import math
 import astropy.nddata as nd
 
-def apply_circle_fov(dattype, data, radius, loc, output_filename):
+def write_circle_fov(dattype, data, radius, loc, output_filename):
     shape = data.shape
     final = np.zeros(shape, dtype=dattype)
     for i in range(shape[0]):
@@ -23,7 +23,24 @@ def apply_circle_fov(dattype, data, radius, loc, output_filename):
     wrap = nd.CCDData(final, unit='adu')
     wrap.write(output_filename + ".fits")
 
-def apply_rectagle_fov(dattype, data, rect, ulc, output_filename):
+def apply_circle_fov(imagearray, radius, loc):
+    """Return an imagearray with all but a circle turned to black
+    
+    imagearray must be a numpy array of shape NxMx4"""
+    shape = imagearray.shape
+    final = np.zeros(shape, dtype=imagearray.dtype)
+    loweri = max(0,loc[0]-radius)
+    upperi = min(shape[0],loc[0]+radius)
+    lowerk = max(0,loc[1]-radius)
+    upperk = min(shape[1],loc[1]+radius)
+    
+    for i in range(loweri, upperi):
+        for k in range(lowerk, upperk):
+            if math.hypot(i-loc[0], k-loc[1]) <= radius:
+                final[i][k] = imagearray[i][k]
+    return final
+
+def write_rectagle_fov(dattype, data, rect, ulc, output_filename):
     #ulc stands for upper left corner
     shape = data.shape
     final = np.zeros(shape, dtype=dattype)
@@ -62,7 +79,7 @@ def apply_static_random_scatter(data, cover):
     for i in range(data):
         for k in range(data[i]):
             if (i,k) in cover:
-                data[(i,k)] = 0
+                data[i][k] = 0*data[i][k]
     return data
     
 def apply_dynamic_img_scatter(data, fraction):
@@ -71,6 +88,5 @@ def apply_dynamic_img_scatter(data, fraction):
     for i in range(len(data)):
         for k in range(len(data[i])):
             if np.random.rand() < fraction:
-                brt = data[i][k]
-                data[i][k] = [0,0,0,0]
+                data[i][k] = 0*data[i][k]
     return data
