@@ -26,7 +26,7 @@ def write_circle_fov(dattype, data, radius, loc, output_filename):
 def apply_circle_fov(imagearray, radius, loc):
     """Return an imagearray with all but a circle turned to black
     
-    imagearray must be a numpy array of shape NxMx4"""
+    imagearray must be a numpy array"""
     shape = imagearray.shape
     final = np.zeros(shape, dtype=imagearray.dtype)
     loweri = max(0,loc[0]-radius)

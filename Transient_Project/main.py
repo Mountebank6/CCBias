@@ -12,12 +12,13 @@ import src.makedata.TransientSeries as trans
 import src.makedata.tools.FOV as fov
 import imageio as img
 
-number = 600
+number = 300
 shap = (500,500)
-mean = 30
-sigm = 20
+mean = 600
+sigm = 400
 velo = 0
-prob = 0.000002
+prob = 0.0000002
+gifname = "superlonglives600400lowprob2e-7"
 
 gray = trans.TransientSeries(shape=shap,dt=1,n=number,
                             rate=prob,lifetime=mean,lifetime_sigma=sigm,             
@@ -46,7 +47,7 @@ for n in range(number):
     gray.advance(None)
 print("entering gifmaking")
 
-img.mimwrite('uncoveredstilllowp.gif',format = 'gif-pil', 
+img.mimwrite('uncovered' + gifname + '.gif',format = 'gif-pil', 
              ims = bigdata, fps = 30)
 #TODO make this make sense
 print("gif1 done")
@@ -63,5 +64,5 @@ for i in range(len(bigdata)):
     bigdata[i] = fov.apply_circle_fov(bigdata[i],40, locs[i])
 
 print("making final gif")    
-img.mimwrite('coveredstilllowp.gif',format = 'gif-pil', 
+img.mimwrite('covered' + gifname + '.gif',format = 'gif-pil', 
              ims = bigdata, fps = 30)
