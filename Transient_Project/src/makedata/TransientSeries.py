@@ -294,17 +294,25 @@ class TransientSeries:
                 self.astro_data.data[tuple(event)] = (inten)
     
     def __float_rate_populate(self):
-        for i in range(len(self.astro_data.data)):
-            for k in range(len(self.astro_data.data[i])):   
-                if np.random.rand() < self.rate:
-                    lifetime = self.__gen_lifetime(
-                                                    self.lifetime, 
-                                                    self.lifetime_sigma)
-                    birth = np.random.uniform(self.t - self.dt, self.t)
-                    self.__append_event(
-                                        birth, [i,k], lifetime - (self.t-birth), 
-                                        self.unifv*velmaker.get_unifv(), 
-                                        self.__assign_intensity())
+        total_pixels = self.shape[0]*self.shape[1]
+        generatedevents = np.random.binomial(total_pixels, self.rate)
+        for _ in range(generatedevents):
+            birth_location = [
+                            np.random.randint(0,self.shape[0]),
+                            np.random.randint(0,self.shape[1])
+                             ]
+            lifetime = self.__gen_lifetime(
+                                            self.lifetime, 
+                                            self.lifetime_sigma
+                                           )
+            birth_time = np.random.uniform(self.t - self.dt, self.t)
+            self.__append_event(
+                                birth_time, birth_location, 
+                                lifetime - (self.t-birth_time), 
+                                self.unifv*velmaker.get_unifv(), 
+                                self.__assign_intensity()
+                                )
+        return
     
     def __array2_rate_populate(self):
         for i in range(len(self.astro_data.data)):
