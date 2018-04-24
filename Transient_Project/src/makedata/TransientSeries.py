@@ -134,18 +134,7 @@ class TransientSeries:
         if self.dt is None:
             raise TypeError("Required argument 'dt' (pos 2) not found")
         
-        self.__check_shape()
-        self.__check_data_type()
-        self.__check_dt()
-        self.__check_rate()
-        self.__check_n()
-        self.__check_lifetime()
-        self.__check_lifetime_sigma()
-        self.__check_gauss_intensity()
-        self.__check_gauss_sigma()
-        self.__check_unifv()
-        self.__check_filename()
-
+        self.__check_all()
         self.new_population()
     
     def populate(self):
@@ -339,6 +328,19 @@ class TransientSeries:
                                         birth, [i,k], lifetime - (self.t-birth), 
                                         self.unifv*velmaker.get_unifv(), 
                                         self.__assign_intensity())
+    
+    def __check_all(self):
+        self.__check_shape()
+        self.__check_data_type()
+        self.__check_dt()
+        self.__check_rate()
+        self.__check_n()
+        self.__check_lifetime()
+        self.__check_lifetime_sigma()
+        self.__check_gauss_intensity()
+        self.__check_gauss_sigma()
+        self.__check_unifv()
+        self.__check_filename()
     
     def __check_shape(self):
         """Throw errors if types/values are wrong"""

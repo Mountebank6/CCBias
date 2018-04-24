@@ -15,13 +15,13 @@ from scipy import special
 from scipy import integrate
 from math import sqrt, pi, exp
 
-number = 600
+number = 500
 shap = (500,500)
 mean = 1000
 sigm = 1000
 velo = 0
 prob = 0.0000002
-gifname = "truemean1000u1000slowprob2e-7"
+gifname = "newtypealtsmoltruemean1000u1000slowprob2e-7"
 #because events with <=0 lifetimes never render even for
 #for a single frame, the actual distribution of
 #events is better modeled by a truncated normal distribution
