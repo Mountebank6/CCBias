@@ -390,7 +390,7 @@ class TransientSeries:
                         if self.rate[i][k] > 1 or self.rate[i][k] < 0:
                             raise ValueError("Some rate values are not " + 
                                              "between 0 and 1 inclusive")
-            if len(self.rate.shape) == 3:
+            elif len(self.rate.shape) == 3:
                 if self.rate.shape != self.shape:
                     raise ValueError("mismatched rate shape and shape of images")
                 for i in range(len(self.rate)):
