@@ -23,7 +23,7 @@ velo = 0
 prob = 0.0000002
 gifname = "newtypealtsmoltruemean1000u1000slowprob2e-7"
 #because events with <=0 lifetimes never render even for
-#for a single frame, the actual distribution of
+#a single frame, the actual distribution of
 #events is better modeled by a truncated normal distribution
 def fakenorm(x):
     return 1/sqrt(2*pi*sigm**2)*exp(-(x-mean)**2/(2*sigm**2))
