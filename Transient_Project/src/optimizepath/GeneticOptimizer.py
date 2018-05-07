@@ -64,16 +64,17 @@ def GeneticOptimizer(generator_class, generator_args, crossrate, mutrate,
             babypop.append(breed(*roulette_select(scores, population),
                                 crossovers, mutations, characterized_genome))
         population = [genome for _,genome in sorted(zip(scores,population))]
-        
+        scores = [score for score,_ in sorted(zip(scores,population))]
+
         if generation == genetic_iterations - 1:
-            scores = [score for score,_ in sorted(zip(scores,population))]
             return list(reversed(scores)), list(reversed(population))
 
         for lowscoreindex in reversed(range(babies)):
             del population[lowscoreindex]
         population = list(reversed(population))
         population += babypop
-        print("Done with generation number " + str(generation))
+        print("Generation: " + str(generation))
+        print(np.mean(scores))
 def genome_characterizer(minlist, maxlist, typelist):
     """Return a list with information that characterizes the genome
     
@@ -150,17 +151,19 @@ def breed(mother, father, crossovers, mutations, characterized_genome):
         raise ValueError("More mutations than genes to mutate")
     crossoverlocs = random.sample(range(len(mother)), crossovers)
     crossoverlocs.sort()
+    mother2, father2 = copy.deepcopy(mother), copy.deepcopy(father)
+    
     if np.random.rand() > 0.5:
         #this is to remove score bias, since the mother is the
         #higher scorer
-        mother, father = father, mother
-    child = mother
+        mother2, father2 = father2, mother2
+    child = mother2
     for i in range(len(crossoverlocs)):
         if i % 2 == 0:
-            child[i:] = father[i:]
+            child[i:] = father2[i:]
         else:
-            child[i:] = mother[i:]
-    mutationlocs = random.sample(range(len(mother)), mutations)
+            child[i:] = mother2[i:]
+    mutationlocs = random.sample(range(len(mother2)), mutations)
     mutationlocs.sort()
     for loc in mutationlocs:
         innerchange = np.random.randint(0,len(child[loc]))

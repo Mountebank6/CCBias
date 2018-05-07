@@ -37,8 +37,8 @@ for i in range(len(superbiasedarray)):
 #gray = trans.TransientSeries(shap, dt, number, superbiasedarray, mean, sigm)
 
 scores, population = gen.GeneticOptimizer(trans.TransientSeries,[shap, dt, 
-                        number, superbiasedarray, mean, sigm], 0.01, 0.00000005,
-                        500, 10, scor.int_intensity_square,
+                        number, superbiasedarray, mean, sigm], 0.1, 0.03,
+                        500, 50, scor.int_intensity_square,
                         gen.genome_characterizer([0,0,10], [499,499,10],
                         ["int", "int","int"]))
 
@@ -58,3 +58,5 @@ img.mimwrite("genetically-optimized.gif",format = 'gif-pil',
              ims = bigdata, fps = 5)
 
 print(scores)
+#print(population[0])
+#print(population[10])
