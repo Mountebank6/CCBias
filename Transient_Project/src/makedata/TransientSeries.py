@@ -12,6 +12,7 @@ import astropy.nddata as nd
 import copy
 from .tools import velmaker
 import math
+import random
 
 
 _allowed_types = [np.uint8, np.uint16, np.uint32, np.uint64,
@@ -67,7 +68,7 @@ class TransientSeries:
     def __init__(self, shape=None, dt=None,
                  n=None, rate=None, lifetime=None, 
                  lifetime_sigma=None, data_type=np.uint16,
-                 gauss_intensity=None, gauss_sigma=None, unifv=None,
+                 gauss_intensity=None, gauss_sigma=None, unifv=0,
                  filename=None):
         """Generate initial conditions from parameters.
         
@@ -303,18 +304,36 @@ class TransientSeries:
                                 )
         return
     
+    def __array2_rate_simplify(self):
+        self.uniqueprobs = []
+        self.indeces = []
+        for i in range(len(self.rate)):
+            for k in range(len(self.rate[i])):
+                if self.rate[i][k] not in self.uniqueprobs:
+                    self.uniqueprobs.append(self.rate[i][k])
+                    self.indeces.append([[i,k]])
+                else:
+                    self.indeces[self.uniqueprobs.index(self.rate[i][k]
+                                                    )].append([i,k])
+        return
+    
     def __array2_rate_populate(self):
-        for i in range(len(self.astro_data.data)):
-            for k in range(len(self.astro_data.data)):
-                if np.random.rand() < self.rate[i][k]:
-                    lifetime = self.__gen_lifetime(
+        marked = []
+        for i in range(len(self.uniqueprobs)):
+            number_to_mark = np.random.binomial(len(self.indeces[i]),
+                                                self.uniqueprobs[i])
+            marked.append(random.sample(self.indeces[i], number_to_mark))
+        marked = [item for sublist in marked for item in sublist]
+        for loc in marked:
+            lifetime = self.__gen_lifetime(
                                                     self.lifetime, 
                                                     self.lifetime_sigma)
-                    birth = np.random.uniform(self.t - self.dt, self.t)
-                    self.__append_event(
-                                        birth, [i,k], lifetime - (self.t-birth), 
-                                        self.unifv*velmaker.get_unifv(), 
-                                        self.__assign_intensity())
+            birth = np.random.uniform(self.t - self.dt, self.t)
+            self.__append_event(
+                                birth, loc, lifetime - (self.t-birth), 
+                                self.unifv*velmaker.get_unifv(), 
+                                self.__assign_intensity())
+
                             
     def __array3_rate_populate(self):
         for i in range(len(self.astro_data.data)):
@@ -390,6 +409,7 @@ class TransientSeries:
                         if self.rate[i][k] > 1 or self.rate[i][k] < 0:
                             raise ValueError("Some rate values are not " + 
                                              "between 0 and 1 inclusive")
+                self.__array2_rate_simplify()
             elif len(self.rate.shape) == 3:
                 if self.rate.shape != self.shape:
                     raise ValueError("mismatched rate shape and shape of images")

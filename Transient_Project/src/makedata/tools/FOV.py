@@ -40,6 +40,21 @@ def apply_circle_fov(imagearray, radius, loc):
                 final[i][k] = imagearray[i][k]
     return final
 
+def apply_square_fov(imagearray, radius, loc):
+
+    shape = imagearray.shape
+    final = np.zeros(shape, dtype=imagearray.dtype)
+    lowi = max(0,loc[0]-radius)
+    upi = min(shape[0],loc[0]+radius)
+    lowk = max(0,loc[1]-radius)
+    upk = min(shape[1],loc[1]+radius)
+
+    final[lowi:upi,lowk:upk] = imagearray[lowi:upi,lowk:upk]
+
+
+    return final
+
+
 def write_rectagle_fov(dattype, data, rect, ulc, output_filename):
     #ulc stands for upper left corner
     shape = data.shape

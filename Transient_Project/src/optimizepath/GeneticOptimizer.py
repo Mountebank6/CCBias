@@ -11,9 +11,10 @@ from ..makedata import TransientSeries as tr
 from .opttools import scoring
 from .opttools import searchpath
 from ..makedata.tools import FOV
+import copy
 
-def GeneticOptimizer(generator, crossrate, mutrate, popsize, 
-                     genetic_iterations, scoring_function, 
+def GeneticOptimizer(generator_class, generator_args, crossrate, mutrate, 
+                     popsize, genetic_iterations, scoring_function, 
                      characterized_genome):
     """Return optimized search paths for a given TransientSeries
     
@@ -36,6 +37,8 @@ def GeneticOptimizer(generator, crossrate, mutrate, popsize,
             Describes the properties of the components of a single gene
             See genome_characterizer docstring for more details
     """
+    generator = generator_class(*generator_args)
+
     genomelength = generator.get_n()
     if crossrate > 1 or crossrate < 0:
         raise ValueError("crossrate is of inappropriate value")
@@ -47,10 +50,12 @@ def GeneticOptimizer(generator, crossrate, mutrate, popsize,
     for generation in range(genetic_iterations):
         scores = [0 for element in population]
         for k in range(genomelength):
+#            print("completed an image")
             for i in range(len(population)):
-                scores[i] += scoring_function(generator.get_astro_data_data(),
-                                                *population[i][k])
+                scores[i] += scoring_function(generator, *population[i][k])
             generator.advance()
+        
+        generator = generator_class(*generator_args)
         babies = round(popsize/2)
         babypop = []
         for _ in range(babies):
@@ -59,11 +64,16 @@ def GeneticOptimizer(generator, crossrate, mutrate, popsize,
             babypop.append(breed(*roulette_select(scores, population),
                                 crossovers, mutations, characterized_genome))
         population = [genome for _,genome in sorted(zip(scores,population))]
+        
+        if generation == genetic_iterations - 1:
+            scores = [score for score,_ in sorted(zip(scores,population))]
+            return list(reversed(scores)), list(reversed(population))
+
         for lowscoreindex in reversed(range(babies)):
             del population[lowscoreindex]
+        population = list(reversed(population))
         population += babypop
         print("Done with generation number " + str(generation))
-    return population
 def genome_characterizer(minlist, maxlist, typelist):
     """Return a list with information that characterizes the genome
     
@@ -153,21 +163,27 @@ def breed(mother, father, crossovers, mutations, characterized_genome):
     mutationlocs = random.sample(range(len(mother)), mutations)
     mutationlocs.sort()
     for loc in mutationlocs:
-        change = mutationlocs[loc]
-        innerchange = np.random.randint(0,len(child[change]))
-        child[change][innerchange] = gen_initial_population(1,1,
-                                        characterized_genome)[innerchange]
+        innerchange = np.random.randint(0,len(child[loc]))
+        child[loc][innerchange] = gen_initial_population(1,1,
+                                    characterized_genome)[0][0][innerchange]
     return child
 
 def roulette_select(scorelist, population):
-    weighted = [scorelist[i]*i for i in range(len(scorelist))]
+    
+    weighted = [[i]*max(1, 1 + scorelist[i]) for i in range(len(scorelist))]
     flatweighted = [item for sublist in weighted for item in sublist]
-    mother, father = random.sample(flatweighted, 2)
+    selection = np.random.randint(0, len(flatweighted))
+    mother = flatweighted[selection]
+    
+    selection2 = np.random.randint(0, len(flatweighted))
+    father = flatweighted[selection2]
     pathological_score = 0
+
     while mother == father:
-        mother, father = random.sample(flatweighted, 2)
+        selection2 = np.random.randint(0, len(flatweighted))
+        father = flatweighted[selection2]
         pathological_score += 1
         if pathological_score > 10000:
-            raise ValueError("every element in your population "
-                            + "has the same score. you screwed up")
+            raise ValueError("mother == father and can't escape")
+    
     return [population[mother], population[father]]
