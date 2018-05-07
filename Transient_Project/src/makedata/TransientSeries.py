@@ -220,7 +220,7 @@ class TransientSeries:
         """Generate the whole suite of images"""
         if self.n is None:
             raise ValueError("n must be given")
-        while self.t < self.dt*self.n:
+        while round(self.t/self.dt) < self.n:
             self.advance(self.filename)
                 
     def __assign_intensity(self):
