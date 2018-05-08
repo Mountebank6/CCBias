@@ -172,8 +172,10 @@ def breed(mother, father, crossovers, mutations, characterized_genome):
     return child
 
 def roulette_select(scorelist, population):
-    
-    weighted = [[i]*max(1, 1 + scorelist[i]) for i in range(len(scorelist))]
+    """Select parents from weighted roulette distribution"""
+    weighted = [[i]*
+                    max(1, (scorelist[i] - int(np.mean(scorelist)))
+                        ) for i in range(len(scorelist))]
     flatweighted = [item for sublist in weighted for item in sublist]
     selection = np.random.randint(0, len(flatweighted))
     mother = flatweighted[selection]
