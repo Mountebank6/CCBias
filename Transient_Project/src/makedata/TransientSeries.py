@@ -73,8 +73,8 @@ class TransientSeries:
     def __init__(self, shape=None, dt=None,
                  n=None, rate=None, lifetime=None, 
                  lifetime_sigma=None, data_type=np.uint16,
-                 gauss_intensity=None, gauss_sigma=None, unifv=0,
-                 filename=None):
+                 gauss_intensity=None, gauss_sigma=None,
+                 duty_cycle = [1.0], unifv=0, filename=None):
         """Generate initial conditions from parameters.
         
         Args:
@@ -108,7 +108,9 @@ class TransientSeries:
                 Average intensity of the events. It is a unitless fraction 
                 of the maximum value allowed by the data type
             gauss_sigma: float
-                standard deviation of the intensities of the events  
+                standard deviation of the intensities of the events 
+            duty_cycle: list of floats between 0 and 1
+                The intensities in time steps of dt
             unifv: float
                 velocity that all events have in 3D space
                 then this is projected onto the plane
@@ -127,6 +129,7 @@ class TransientSeries:
         self.lifetime_sigma = lifetime_sigma
         self.gauss_intensity = gauss_intensity
         self.gauss_sigma = gauss_sigma
+        self.duty_cycle = duty_cycle
         self.unifv = unifv
         self.filename = filename
         self.valid_i = range(shape[0])
@@ -186,6 +189,7 @@ class TransientSeries:
         self.cur_durations = []
         self.cur_vels = []
         self.cur_intens = []
+        self.static_intens = []
         self.__pre_populate()
     
     def __pre_populate(self):
@@ -215,6 +219,12 @@ class TransientSeries:
             self.cur_raw_locs[i][1] += self.dt*self.cur_vels[i][1]
             self.cur_locs[i][0] = int(round(self.cur_raw_locs[i][0]))
             self.cur_locs[i][1] = int(round(self.cur_raw_locs[i][1]))
+
+        #update the intensity duty cycle
+        for i in range(len(self.cur_intens)):
+            ticks_alive = round((self.t-self.cur_births[i])/self.dt)
+            self.cur_intens[i] = (self.static_intens[i]
+                                 *self.duty_cycle[ticks_alive])
           
         #generate new events
         self.populate()
@@ -265,6 +275,7 @@ class TransientSeries:
         self.cur_durations.append(duration)
         self.cur_vels.append(vel)
         self.cur_intens.append(inten)
+        self.static_intens.append(inten)
     
     def __kill_dead_events(self, tick_time=False):
         """Delete events that have lived out their lifetimes"""
@@ -281,6 +292,7 @@ class TransientSeries:
             del self.cur_raw_locs[index]
             del self.cur_vels[index]
             del self.cur_intens[index]
+            del self.static_intens[index]
     
     def __gen_lifetime(self, mean, sigm):
         """Return a lifetime for an event"""
