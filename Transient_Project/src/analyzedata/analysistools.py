@@ -12,14 +12,6 @@ import copy
 #it's there and emitting and unobscured but too noisy to detect
 #it's there and emitting and you see it
 
-def addGaussianNoise(inputArray, noiseMean, noiseSigma):
-    """Adds normally distributed noise to all elements"""
-    if not isinstance(inputArray, np.ndarray):
-        final = np.asarray(copy.deepcopy(inputArray))
-    else:
-        final = copy.deepcopy(inputArray)
-    final += np.random.normal(noiseMean, noiseSigma, final.size)
-
 def calcSNR(inputArray, loc):
     """Calc SNR of the loc
     

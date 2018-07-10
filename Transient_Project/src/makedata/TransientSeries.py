@@ -338,6 +338,15 @@ class TransientSeries:
                                 )
         return
     
+    def add_gaussian_noise(self, noiseMean, noiseSigma):
+        """Adds normally distributed noise to all elements"""
+        if not isinstance(self.astro_data.data, np.ndarray):
+            final = np.asarray(copy.deepcopy(self.astro_data.data))
+        else:
+            final = copy.deepcopy(self.astro_data.data)
+        final += np.random.normal(self.astro_data.data, 
+                                    noiseSigma, final.size)
+    
     def __array2_rate_simplify(self):
         """Take a 2D array of probabilities and reduce it
         
