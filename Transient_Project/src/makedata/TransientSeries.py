@@ -33,7 +33,8 @@ class TransientSeries:
         gauss_sigma
     Attributes:
         cur_locs: list of 2-tuples
-            lists the locations of the centers of the currently living events
+            lists the locations of the centers of the currently 
+                living events
                 cur_locs[i], cur_births[i], and 
                 cur_durations[i] all refer to the same event
         cur_births: list of floats
@@ -41,7 +42,8 @@ class TransientSeries:
                 cur_locs[i], cur_births[i], and 
                 cur_durations[i] all refer to the same event
         cur_durations: list of floats
-            lists how much time remaining of life the currently living events have
+            lists how much time remaining of life the currently 
+                living events have
                 cur_locs[i], cur_births[i], and 
                 cur_durations[i] all refer to the same event   
         t: float
@@ -50,7 +52,8 @@ class TransientSeries:
             in total for a given t since at t == 0, a starting
             image exists.
         astro_data: astropy.nddata.NDDataRef
-            the image data at t. It is an array of intensities in space
+            the image data at t. It is an array of intensities 
+            in space
     Public Methods:
         new_population():
             set t to 0. set astro_data to the zero array of shape given
@@ -59,8 +62,10 @@ class TransientSeries:
             ["SOON" TO BE DEPRECATED]
             Look through astro_data and cur_locs. If 
             cur_locs indicates an event exists at an index, but 
-            the intensity at that index is 0, give that pixel in astro_data
-            a gaussian intensity with mean and standard deviation given by
+            the intensity at that index is 0, give that pixel 
+            in astro_data
+            a gaussian intensity with mean and standard deviation 
+            given by
             gauss_intensity and gauss_sigma respectively.
     """
     
@@ -68,8 +73,8 @@ class TransientSeries:
     def __init__(self, shape=None, dt=None,
                  n=None, rate=None, lifetime=None, 
                  lifetime_sigma=None, data_type=np.uint16,
-                 gauss_intensity=None, gauss_sigma=None, unifv=0,
-                 filename=None):
+                 gauss_intensity=None, gauss_sigma=None,
+                 duty_cycle = [1.0], unifv=0, filename=None):
         """Generate initial conditions from parameters.
         
         Args:
@@ -103,7 +108,9 @@ class TransientSeries:
                 Average intensity of the events. It is a unitless fraction 
                 of the maximum value allowed by the data type
             gauss_sigma: float
-                standard deviation of the intensities of the events  
+                standard deviation of the intensities of the events 
+            duty_cycle: list of floats between 0 and 1
+                The intensities in time steps of dt
             unifv: float
                 velocity that all events have in 3D space
                 then this is projected onto the plane
@@ -122,6 +129,7 @@ class TransientSeries:
         self.lifetime_sigma = lifetime_sigma
         self.gauss_intensity = gauss_intensity
         self.gauss_sigma = gauss_sigma
+        self.duty_cycle = duty_cycle
         self.unifv = unifv
         self.filename = filename
         self.valid_i = range(shape[0])
@@ -181,6 +189,7 @@ class TransientSeries:
         self.cur_durations = []
         self.cur_vels = []
         self.cur_intens = []
+        self.static_intens = []
         self.__pre_populate()
     
     def __pre_populate(self):
@@ -210,6 +219,12 @@ class TransientSeries:
             self.cur_raw_locs[i][1] += self.dt*self.cur_vels[i][1]
             self.cur_locs[i][0] = int(round(self.cur_raw_locs[i][0]))
             self.cur_locs[i][1] = int(round(self.cur_raw_locs[i][1]))
+
+        #update the intensity duty cycle
+        for i in range(len(self.cur_intens)):
+            ticks_alive = round((self.t-self.cur_births[i])/self.dt)
+            self.cur_intens[i] = (self.static_intens[i]
+                                 *self.duty_cycle[ticks_alive])
           
         #generate new events
         self.populate()
@@ -225,7 +240,14 @@ class TransientSeries:
             self.advance(self.filename)
                 
     def __assign_intensity(self):
+        """Return a random intensity for a new event
         
+        Defaults to the maximum value allowed by the data type
+        If the TransientSeries object has a set gauss_intensity, 
+            it uses that isntead of max value
+        If the TransientSeries object has a set gauss_sigma,
+            it draws an intensity from the gaussian distribution
+        """
         inten = self.gauss_intensity
         sigm = self.gauss_sigma
         try:
@@ -246,14 +268,17 @@ class TransientSeries:
             return max_value
     
     def __append_event(self, birth, loc, duration, vel, inten):
+        """Add an event to the registers"""
         self.cur_births.append(birth)
         self.cur_locs.append(loc)
         self.cur_raw_locs.append(loc)
         self.cur_durations.append(duration)
         self.cur_vels.append(vel)
         self.cur_intens.append(inten)
+        self.static_intens.append(inten)
     
     def __kill_dead_events(self, tick_time=False):
+        """Delete events that have lived out their lifetimes"""
         badindex = []
         for i in range(len(self.cur_durations)):
             if tick_time is True:
@@ -267,8 +292,10 @@ class TransientSeries:
             del self.cur_raw_locs[index]
             del self.cur_vels[index]
             del self.cur_intens[index]
+            del self.static_intens[index]
     
     def __gen_lifetime(self, mean, sigm):
+        """Return a lifetime for an event"""
         if sigm is not None:
             life = np.random.normal(mean, sigm)
         else:
@@ -276,6 +303,7 @@ class TransientSeries:
         return life
     
     def __update_image(self):
+        """Reset and refill the astro_data array"""
         self.astro_data.data = np.zeros(self.shape, dtype=self.data_type)
         for i in range(len(self.cur_locs)):
             event = self.cur_locs[i]
@@ -284,6 +312,12 @@ class TransientSeries:
                 self.astro_data.data[tuple(event)] = (inten)
     
     def __float_rate_populate(self):
+        """Make new events for uniform event gen rate
+        
+        This is for when the self.rate is just a float
+        Sample from binomial distribution to find how
+        many events are born, then place them randomly
+        """
         total_pixels = self.shape[0]*self.shape[1]
         generatedevents = np.random.binomial(total_pixels, self.rate)
         for _ in range(generatedevents):
@@ -304,7 +338,20 @@ class TransientSeries:
                                 )
         return
     
+    def add_gaussian_noise(self, noiseMean, noiseSigma):
+        """Adds normally distributed noise to all elements"""
+        if not isinstance(self.astro_data.data, np.ndarray):
+            final = np.asarray(copy.deepcopy(self.astro_data.data))
+        else:
+            final = copy.deepcopy(self.astro_data.data)
+        final += np.random.normal(self.astro_data.data, 
+                                    noiseSigma, final.size)
+    
     def __array2_rate_simplify(self):
+        """Take a 2D array of probabilities and reduce it
+        
+        Group the cells that have the same probabilities together
+        """
         self.uniqueprobs = []
         self.indeces = []
         for i in range(len(self.rate)):
@@ -318,6 +365,7 @@ class TransientSeries:
         return
     
     def __array2_rate_populate(self):
+        """Use grouped cells to generate events from binomial dist"""
         marked = []
         for i in range(len(self.uniqueprobs)):
             number_to_mark = np.random.binomial(len(self.indeces[i]),
@@ -336,6 +384,7 @@ class TransientSeries:
 
                             
     def __array3_rate_populate(self):
+        """Make events one-by-one from the appropriate array"""
         for i in range(len(self.astro_data.data)):
             for k in range(len(self.astro_data.data)):
                 if np.random.rand() < self.rate[int(round(self.t/self.dt))][i][k]:
@@ -349,6 +398,7 @@ class TransientSeries:
                                         self.__assign_intensity())
     
     def __check_all(self):
+        """Run all the checker functions"""
         self.__check_shape()
         self.__check_data_type()
         self.__check_dt()
