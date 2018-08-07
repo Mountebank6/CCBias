@@ -4,20 +4,13 @@
 import numpy as np
 import copy
 
-#There's 4 real reasons why an event wouldn't be detected
-#it's currently not there
-#you're looking at it but it's not emitting: duty cycle is 
+#There's 5 cases when you look at a place
+#no event is there
+#you're looking at an event but it's not emitting: duty cycle is 
 #   currently off
 #it's there and emitting but obscured by something
 #it's there and emitting and unobscured but too noisy to detect
-
-def addGaussianNoise(inputArray, noiseMean, noiseSigma):
-    """Adds normally distributed noise to all elements"""
-    if not isinstance(inputArray, np.ndarray):
-        final = np.asarray(copy.deepcopy(inputArray))
-    else:
-        final = copy.deepcopy(inputArray)
-    final += np.random.normal(noiseMean, noiseSigma, final.size)
+#it's there and emitting and you see it
 
 def calcSNR(inputArray, loc):
     """Calc SNR of the loc
