@@ -35,7 +35,7 @@ class TransientEvent:
             self.lum = self.luminositySeries[0]
         self.markedForDeath = False
     
-    def advance(self):
+    def advanceEvent(self):
         if not self.markedForDeath:
             self.loc[0] += 1
             self.loc[1] += self.loc[3]
