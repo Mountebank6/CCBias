@@ -9,7 +9,7 @@ import copy
 class TransientEvent:
     """
     """
-    def __init__(self, loc, lifetime, luminositySeries = None,  ):
+    def __init__(self, loc, lifetime, luminositySeries = None):
         """
         Arguments:
             loc: length 5 list. Positions:
