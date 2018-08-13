@@ -26,6 +26,7 @@ class TransientEvent:
         """
         self.loc = loc
         self.history = [copy.copy(loc)]
+        self.detectionHistory = []
         self.lifetime = lifetime
         if isinstance(luminositySeries, None):
             self.lum = 1
@@ -34,6 +35,7 @@ class TransientEvent:
             self.luminositySeries = luminositySeries
             self.lum = self.luminositySeries[0]
         self.markedForDeath = False
+        self.idNumber = np.random.randint(2**64, dtype = np.uint64)
     
     def advanceEvent(self):
         if not self.markedForDeath:
@@ -47,3 +49,6 @@ class TransientEvent:
         
         if self.loc[0] - self.history[0][0] > self.lifetime:
             self.markedForDeath = True
+    
+    def recordDetection(self):
+        self.detectionHistory.append(copy.copy(self.loc) + [self.lum])
