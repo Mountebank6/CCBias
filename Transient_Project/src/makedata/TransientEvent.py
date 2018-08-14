@@ -9,7 +9,8 @@ import copy
 class TransientEvent:
     """
     """
-    def __init__(self, loc, lifetime, luminositySeries = None):
+    def __init__(self, loc, lifetime, noiseFunction, 
+                 luminositySeries = None):
         """
         Arguments:
             loc: length 5 list. Positions:
@@ -23,6 +24,10 @@ class TransientEvent:
                 maximum reportable luminosity. The ith entry in the
                 iterable represents the luminosity on the ith frame
                 of its existance
+            noiseFunction:
+                function that adds noise to even luminosity
+                Arguments (in this order):
+                    lum, loc, lifetime
         """
         self.loc = loc
         self.history = [copy.copy(loc)]
@@ -36,6 +41,7 @@ class TransientEvent:
             self.lum = self.luminositySeries[0]
         self.markedForDeath = False
         self.idNumber = np.random.randint(2**64, dtype = np.uint64)
+        self.noiseFunc = noiseFunction
     
     def advanceEvent(self):
         if not self.markedForDeath:
@@ -46,6 +52,8 @@ class TransientEvent:
             self.lum = (self.luminositySeries[
                                 self.loc[0] % len(self.luminositySeries)
                                              ])
+            self.lum += self.noiseFunc(self.lum, self.loc, 
+                                self.lifetime)
         
         if self.loc[0] - self.history[0][0] > self.lifetime:
             self.markedForDeath = True
