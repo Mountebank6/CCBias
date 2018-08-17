@@ -6,14 +6,15 @@ Class to hold an individual event
 import numpy as np
 import copy
 
-def zeroFunction(lum, loc, lifetime):
+def zeroFunction(lum=0, loc=0, lifetime=0):
     return 0.0
 
 class TransientEvent:
     """
     """
     def __init__(self, birthLoc, lifetime, classID, 
-                 noiseFunction = zeroFunction, luminositySeries = None):
+                 noiseFunction = zeroFunction, noiseExtraArgs = [],
+                 luminositySeries = None):
         """
         Arguments:
             loc: length 5 list. Positions:
@@ -30,17 +31,19 @@ class TransientEvent:
             noiseFunction:
                 function that adds noise to even luminosity
                 Arguments (in this order):
-                    lum, loc, lifetime
+                    lum, loc, lifetime, *noiseExtraArgs
         """
         self.classID = classID
         self.loc = birthLoc
+        self.noiseArgs = noiseExtraArgs
         self.history = [copy.copy(birthLoc)]
         self.detectionHistory = []
         self.lifetime = lifetime
         self.noiseFunc = noiseFunction
         if isinstance(luminositySeries, None):
             self.lum = 1 + self.noiseFunc(
-                                self.lum, self.loc, self.lifetime
+                                self.lum, self.loc, self.lifetime,
+                                *self.noiseArgs         
                                          )
             self.luminositySeries = [1]
         else:
@@ -49,7 +52,8 @@ class TransientEvent:
                             + self.noiseFunc(
                                         self.lum, 
                                         self.loc, 
-                                        self.lifetime))
+                                        self.lifetime,
+                                        *self.noiseArgs))
         self.markedForDeath = False
         self.idNumber = np.random.randint(2**64, dtype = np.uint64)
         
@@ -66,7 +70,8 @@ class TransientEvent:
             self.lum += self.noiseFunc(
                                 self.lum, 
                                 self.loc, 
-                                self.lifetime)
+                                self.lifetime,
+                                *self.noiseArgs)
         
         if self.loc[0] - self.history[0][0] > self.lifetime:
             self.markedForDeath = True
