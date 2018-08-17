@@ -6,11 +6,14 @@ Class to hold an individual event
 import numpy as np
 import copy
 
+def zeroFunction(lum, loc, lifetime):
+    return 0.0
+
 class TransientEvent:
     """
     """
-    def __init__(self, loc, lifetime, noiseFunction, 
-                 luminositySeries = None):
+    def __init__(self, birthLoc, lifetime, classID, 
+                 noiseFunction = zeroFunction, luminositySeries = None):
         """
         Arguments:
             loc: length 5 list. Positions:
@@ -29,19 +32,27 @@ class TransientEvent:
                 Arguments (in this order):
                     lum, loc, lifetime
         """
-        self.loc = loc
-        self.history = [copy.copy(loc)]
+        self.classID = classID
+        self.loc = birthLoc
+        self.history = [copy.copy(birthLoc)]
         self.detectionHistory = []
         self.lifetime = lifetime
+        self.noiseFunc = noiseFunction
         if isinstance(luminositySeries, None):
-            self.lum = 1
+            self.lum = 1 + self.noiseFunc(
+                                self.lum, self.loc, self.lifetime
+                                         )
             self.luminositySeries = [1]
         else:
             self.luminositySeries = luminositySeries
-            self.lum = self.luminositySeries[0]
+            self.lum = (self.luminositySeries[0]  
+                            + self.noiseFunc(
+                                        self.lum, 
+                                        self.loc, 
+                                        self.lifetime))
         self.markedForDeath = False
         self.idNumber = np.random.randint(2**64, dtype = np.uint64)
-        self.noiseFunc = noiseFunction
+        
     
     def advanceEvent(self):
         if not self.markedForDeath:
@@ -52,7 +63,9 @@ class TransientEvent:
             self.lum = (self.luminositySeries[
                                 self.loc[0] % len(self.luminositySeries)
                                              ])
-            self.lum += self.noiseFunc(self.lum, self.loc, 
+            self.lum += self.noiseFunc(
+                                self.lum, 
+                                self.loc, 
                                 self.lifetime)
         
         if self.loc[0] - self.history[0][0] > self.lifetime:
