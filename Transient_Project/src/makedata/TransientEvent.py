@@ -55,7 +55,8 @@ class TransientEvent:
                                         self.lifetime,
                                         *self.noiseArgs))
         self.markedForDeath = False
-        self.idNumber = np.random.randint(2**64, dtype = np.uint64)
+        self.eventID = np.random.randint(2**64, dtype = np.uint64)
+        self.holisticDetection = False
         
     
     def advanceEvent(self):
