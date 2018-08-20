@@ -50,11 +50,15 @@ class ObservingProfile:
         self.holistic = holisticDetection
 
     def frameDetect(self, time, events):
+        """Mark events that are viewed and unobstructed
+        """
         frameDetected = self.obstruct(time, self.view(time, events))
         for event in frameDetected:
             event.recordDetection()
 
     def holisticDetect(self, events):
+        """Mark events that are detected overall
+        """
         for event in events:
             if self.holistic(event):
                 event.holisticDetection = True

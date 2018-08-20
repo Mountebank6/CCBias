@@ -41,3 +41,4 @@ class TransientGenerator:
         for function in self.generatorFunctions:
             newEvents += function(currentFrameNumber, self.surveyShape)
         return newEvents
+        

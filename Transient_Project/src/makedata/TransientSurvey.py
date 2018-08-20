@@ -17,30 +17,10 @@ class TransientSurvey:
                 Function that generates noise on the events
                     to simulate ambient sky noise
                     takes as args (event.loc, event.classID)
-            frameDetectionFunctionList:
-                list of frame-detection functions. One function
-                for each classID.
-                takes as args (TransientEvent object) and 
-                returns True if it's detected at the most recent
-                frame and returns False if not. If True,
-                runs event.recordDetection, which dumps
-                current event telemetry to the 
-                event.detectionHistory
-            holisticDetectionFunctionList:
-                list of holistic-detection functions. One function
-                for each classID
-                Takes as args (TransientEvent object)
-                Looks at its history (including when it was 
-                frame-detected) and returns True if the event
-                as a whole was detected and False otherwise
     """
 
-    def __init__(self, shape, generator, surveyNoiseFunction,
-                 frameDetectionFunctionList, 
-                 holisticDetectionFunctionList, ):
-        self.generator = generator
-        self.frameFuncs = frameDetectionFunctionList
-        self.holisticFuncs = holisticDetectionFunctionList
+    def __init__(self, shape, generator, surveyNoiseFunction):
+        self.generator = generator 
         self.shape = shape
         self.surveyNoise = surveyNoiseFunction
         self.events = []
@@ -48,18 +28,22 @@ class TransientSurvey:
         self.gen = self.generator.generate
 
     def advance(self):
+        """
+        Advance the simulation by one frame
+        """
+        #tick existing things
         self.absoluteTime += 1
         for event in self.events:
             event.advanceEvent()
+        #generate new events
         self.events.append(self.gen(self.absoluteTime))
-        for event in self.events:
-            if self.frameFuncs[event.classID](event):
-                event.recordDetection()
 
-    def getHolisticDetecedEvents(self):
+    def getHolisticDetectedEvents(self):
+        """Return holistic detected events
+        """
         detectedEvents = []
         for event in self.events:
-            if self.holisticFuncs[event.classID](event):
+            if event.holisticDetection:
                 detectedEvents.append(event)
         return detectedEvents
 
