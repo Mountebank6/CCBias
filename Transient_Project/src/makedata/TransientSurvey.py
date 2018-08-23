@@ -13,16 +13,13 @@ class TransientSurvey:
         generator:
             TransientGenerator objects which makes the
                 events
-            surveyNoiseFunction:
-                Function that generates noise on the events
-                    to simulate ambient sky noise
-                    takes as args (event.loc, event.classID)
+            
     """
 
-    def __init__(self, shape, generator, surveyNoiseFunction):
+    def __init__(self, shape, generator, profile):
         self.generator = generator 
         self.shape = shape
-        self.surveyNoise = surveyNoiseFunction
+        self.profile = profile
         self.events = []
         self.absoluteTime = 0
         self.gen = self.generator.generate
@@ -39,7 +36,8 @@ class TransientSurvey:
         self.events.append(self.gen(self.absoluteTime))
 
     def getHolisticDetectedEvents(self):
-        """Return holistic detected events
+        """
+        Return holistic detected events
         """
         detectedEvents = []
         for event in self.events:
@@ -47,4 +45,19 @@ class TransientSurvey:
                 detectedEvents.append(event)
         return detectedEvents
 
+    def getLivingEvents(self):
+        """Return list of living events"""
+        livers = []
+        for event in self.events:
+            if not event.markedForDeath:
+                livers.append(event)
+        return livers
+
+    def getDeadEvents(self):
+        """Return list of dead events"""
+        corpses = []
+        for event in self.events:
+            if event.markedForDeath:
+                corpses.append(event)
+        return corpses
 

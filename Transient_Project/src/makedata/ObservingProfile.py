@@ -10,7 +10,7 @@ class ObservingProfile:
     """
     """
     def __init__(self, viewingField, extraObstruction, 
-                 holisticDetection):
+                 holisticDetection, surveyNoiseFunction):
         """
         Args:
             viewingField:
@@ -41,6 +41,11 @@ class ObservingProfile:
                     Args:
                         Event:
                             event to be tested
+            surveyNoiseFunction:
+                Function that generates noise on the events
+                    to simulate ambient sky noise
+                    takes as args: (list of events)
+                    returns agumented list of events
 
             
                         
@@ -48,11 +53,14 @@ class ObservingProfile:
         self.view = viewingField
         self.obstruct = extraObstruction
         self.holistic = holisticDetection
+        self.surveyNoise = surveyNoiseFunction
 
     def frameDetect(self, time, events):
         """Mark events that are viewed and unobstructed
         """
-        frameDetected = self.obstruct(time, self.view(time, events))
+        frameDetected = self.obstruct(time, 
+                                      self.view(time, 
+                                                self.surveyNoise(events)))
         for event in frameDetected:
             event.recordDetection()
 
