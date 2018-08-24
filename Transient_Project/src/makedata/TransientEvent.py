@@ -77,5 +77,12 @@ class TransientEvent:
         if self.loc[0] - self.history[0][0] > self.lifetime:
             self.markedForDeath = True
     
-    def recordDetection(self):
-        self.detectionHistory.append(copy.copy(self.loc) + [self.lum])
+    def recordDetection(self, noise):
+        """Record a "frame" detection. 
+        
+        the noise factor is to account for noise in the detector,
+        NOT noise in the event itself
+        """
+        self.detectionHistory.append(copy.copy(self.loc) 
+                                     + [self.lum + noise])
+

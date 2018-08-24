@@ -8,17 +8,14 @@ import copy
 class TransientSurvey:
     """
     Args:
-        shape:
-            length, width of survey area in 2-tuple
         generator:
             TransientGenerator objects which makes the
                 events
             
     """
 
-    def __init__(self, shape, generator, profile):
+    def __init__(self, generator, profile):
         self.generator = generator 
-        self.shape = shape
         self.profile = profile
         self.events = []
         self.absoluteTime = 0

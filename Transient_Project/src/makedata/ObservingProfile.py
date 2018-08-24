@@ -44,8 +44,8 @@ class ObservingProfile:
             surveyNoiseFunction:
                 Function that generates noise on the events
                     to simulate ambient sky noise
-                    takes as args: (list of events)
-                    returns agumented list of events
+                    takes as args: event
+                    returns noise to be added to lum
 
             
                         
@@ -59,10 +59,9 @@ class ObservingProfile:
         """Mark events that are viewed and unobstructed
         """
         frameDetected = self.obstruct(time, 
-                                      self.view(time, 
-                                                self.surveyNoise(events)))
+                                      self.view(time, events))
         for event in frameDetected:
-            event.recordDetection()
+            event.recordDetection(self.surveyNoise(event))
 
     def holisticDetect(self, events):
         """Mark events that are detected overall
