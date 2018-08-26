@@ -17,7 +17,7 @@ class TransientEvent:
                  luminositySeries = None):
         """
         Arguments:
-            loc: length 5 list. Positions:
+            birthloc: length 5 list. Positions:
                 0: birth time
                 1: birth x-location
                 2: birth y-location
