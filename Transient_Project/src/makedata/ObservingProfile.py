@@ -9,8 +9,10 @@ import copy
 class ObservingProfile:
     """
     """
-    def __init__(self, viewingField, extraObstruction, 
-                 holisticDetection, surveyNoiseFunction):
+    def __init__(self, viewingField, viewingFieldArgs,
+                 extraObstruction, extraObstructionArgs,
+                 holisticDetection, holisticDetectionArgs,
+                 surveyNoiseFunction, surveyNoiseFunctionArgs):
         """
         Args:
             viewingField:
@@ -51,9 +53,13 @@ class ObservingProfile:
                         
         """
         self.view = viewingField
+        self.vArgs = viewingFieldArgs
         self.obstruct = extraObstruction
+        self.oArgs = extraObstructionArgs
         self.holistic = holisticDetection
+        self.hArgs = holisticDetectionArgs
         self.surveyNoise = surveyNoiseFunction
+        self.sArgs = surveyNoiseFunctionArgs
 
     def frameDetect(self, time, events):
         """Mark events that are viewed and unobstructed
@@ -61,7 +67,8 @@ class ObservingProfile:
         frameDetected = self.obstruct(time, 
                                       self.view(time, events))
         for event in frameDetected:
-            event.recordDetection(self.surveyNoise(event))
+            event.recordDetection(self.surveyNoise(event, 
+                                                   *self.sArgs))
 
     def holisticDetect(self, events):
         """Mark events that are detected overall
