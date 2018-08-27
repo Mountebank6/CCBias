@@ -7,16 +7,16 @@ from .TransientEvent import TransientEvent
 
 trans = TransientEvent
 
-def circleView(events, radius, center):
+def circleView(time, events, radius, center):
     """Return events that are in a circle"""
     passedEvents = []
     for event in events:
-        if ((center[0] - event.loc[-1][1])**2
-           +(center[1] - event.loc[-1][2])**2) < radius:
+        if ((center[0] - event.history[-1][1])**2
+           +(center[1] - event.history[-1][2])**2) < radius**2:
            passedEvents.append(event)
     return passedEvents
 
-def randomObstruction(events, passFraction):
+def randomObstruction(time, events, passFraction):
     """Return passFraction of events at random"""
     passedEvents = []
     for event in events:
@@ -31,7 +31,7 @@ def oneFrameDetectHolistic(event):
     else:
         return False
 
-def gaussSurveyNoise(mean, std):
+def gaussSurveyNoise(event, mean, std):
     return np.random.normal(mean, std)
 
 def gaussEventNoise(mean, std):

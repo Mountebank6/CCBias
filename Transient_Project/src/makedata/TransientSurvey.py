@@ -29,14 +29,18 @@ class TransientSurvey:
         self.absoluteTime += 1
         for event in self.events:
             event.advanceEvent()
+        #Here we decide to exclude new events from the detection
+            #calculus
+        self.profile.frameDetect(self.absoluteTime, self.events)
         #generate new events
-        self.events.append(self.gen(self.absoluteTime))
+        self.events += self.gen(self.absoluteTime)
 
     def getHolisticDetectedEvents(self):
         """
         Return holistic detected events
         """
         detectedEvents = []
+        self.profile.holisticDetect(self.events)
         for event in self.events:
             if event.holisticDetection:
                 detectedEvents.append(event)

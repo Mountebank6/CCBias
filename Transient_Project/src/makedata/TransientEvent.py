@@ -40,9 +40,9 @@ class TransientEvent:
         self.detectionHistory = []
         self.lifetime = lifetime
         self.noiseFunc = noiseFunction
-        if isinstance(luminositySeries, None):
+        if luminositySeries is None:
             self.lum = 1 + self.noiseFunc(
-                                self.lum, self.loc, self.lifetime,
+                                1, self.loc, self.lifetime,
                                 *self.noiseArgs         
                                          )
             self.luminositySeries = [1]
@@ -50,7 +50,7 @@ class TransientEvent:
             self.luminositySeries = luminositySeries
             self.lum = (self.luminositySeries[0]  
                             + self.noiseFunc(
-                                        self.lum, 
+                                        self.luminositySeries[0], 
                                         self.loc, 
                                         self.lifetime,
                                         *self.noiseArgs))

@@ -65,7 +65,8 @@ class ObservingProfile:
         """Mark events that are viewed and unobstructed
         """
         frameDetected = self.obstruct(time, 
-                                      self.view(time, events))
+                                      self.view(time, events, 
+                                        *self.vArgs), *self.oArgs)
         for event in frameDetected:
             event.recordDetection(self.surveyNoise(event, 
                                                    *self.sArgs))
