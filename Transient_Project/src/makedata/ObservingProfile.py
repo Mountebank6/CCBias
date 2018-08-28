@@ -75,6 +75,6 @@ class ObservingProfile:
         """Mark events that are detected overall
         """
         for event in events:
-            if self.holistic(event):
+            if self.holistic(event, *self.hArgs):
                 event.holisticDetection = True
     
