@@ -35,8 +35,13 @@ class TransientEvent:
         """
         self.classID = classID
         self.loc = birthLoc
+        self.time = birthLoc[0]
+        self.x = birthLoc[1]
+        self.y = birthLoc[2]
+        self.xdot = birthLoc[3]
+        self.ydot = birthLoc[4]
         self.noiseArgs = noiseExtraArgs
-        self.history = [copy.copy(birthLoc)]
+        self.history = [[self.time,self.x,self.y,self.xdot,self.ydot]]
         self.detectionHistory = []
         self.lifetime = lifetime
         self.noiseFunc = noiseFunction
@@ -64,7 +69,10 @@ class TransientEvent:
             self.loc[0] += 1
             self.loc[1] += self.loc[3]
             self.loc[2] += self.loc[4]
-            self.history.append(copy.copy(self.loc) + [self.lum])
+            [self.time,self.x,self.y,self.xdot,self.ydot] = self.loc
+            self.history.append(
+                            [self.time,self.x,self.y,self.xdot,self.ydot] 
+                          + [self.lum])
             self.lum = (self.luminositySeries[
                                 self.loc[0] % len(self.luminositySeries)
                                              ])
@@ -83,6 +91,5 @@ class TransientEvent:
         the noise factor is to account for noise in the detector,
         NOT noise in the event itself
         """
-        self.detectionHistory.append(copy.copy(self.loc) 
-                                     + [self.lum + noise])
+        self.detectionHistory.append([self.time,self.lum,noise])
 

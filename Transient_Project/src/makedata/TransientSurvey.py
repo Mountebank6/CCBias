@@ -11,6 +11,8 @@ class TransientSurvey:
         generator:
             TransientGenerator objects which makes the
                 events
+        profile:
+            ObservingProfile object which determines sight
             
     """
 
