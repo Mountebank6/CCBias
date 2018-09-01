@@ -68,7 +68,8 @@ class ObservingProfile:
                                       self.view(time, events, 
                                         *self.vArgs), *self.oArgs)
         for event in frameDetected:
-            event.recordDetection(self.surveyNoise(event, 
+            if not event.markedForDeath:
+                event.recordDetection(self.surveyNoise(event, 
                                                    *self.sArgs))
 
     def holisticDetect(self, events):
