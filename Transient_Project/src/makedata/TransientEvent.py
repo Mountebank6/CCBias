@@ -86,7 +86,7 @@ class TransientEvent:
             self.markedForDeath = True
     
     def recordDetection(self, noise):
-        """Record a "frame" detection. 
+        """Record the time of detection, and the relevant luminosity 
         
         the noise factor is to account for noise in the detector,
         NOT noise in the event itself
