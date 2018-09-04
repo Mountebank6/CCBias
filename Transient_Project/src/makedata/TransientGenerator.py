@@ -29,7 +29,7 @@ class TransientGenerator:
         """
         self.surveyShape = surveyShape
         self.generatorFunctions = generatorFunctions
-        self.extraArgs = extraArgs
+        self.eArgs = extraArgs
 
     def generate(self, currentFrameNumber):
         newEvents = []
@@ -37,6 +37,6 @@ class TransientGenerator:
             newEvents += self.generatorFunctions[i](
                                     currentFrameNumber, 
                                     self.surveyShape, 
-                                    *self.extraArgs[i])
+                                    *self.eArgs[i])
         return newEvents
         
