@@ -14,7 +14,7 @@ class TransientEvent:
     """
     def __init__(self, birthLoc, lifetime, classID, 
                  noiseFunction = zeroFunction, noiseExtraArgs = [],
-                 luminositySeries = None):
+                 noiseExtraArgsChar = [], luminositySeries = None):
         """
         Arguments:
             birthloc: length 5 list. Positions:
@@ -32,6 +32,16 @@ class TransientEvent:
                 function that adds noise to even luminosity
                 Arguments (in this order):
                     lum, loc, lifetime, *noiseExtraArgs
+            noiseExtraArgs:
+                This is for other arguments that the noise function
+                may require. 
+            noiseExtraArgsChar:
+                Characteristic genome for the extra args. List
+                of ranges of acceptable values for the noiseExtraArgs
+                The ranges are given in 2-tuples of (low, high).
+                These ranges are the values over which the 
+                    optimizers will optimize over. 
+                i.e. nothing outside the ranges will be tested for efficacy
         """
         self.classID = classID
         self.loc = birthLoc
@@ -40,7 +50,7 @@ class TransientEvent:
         self.y = birthLoc[2]
         self.xdot = birthLoc[3]
         self.ydot = birthLoc[4]
-        self.noiseArgs = noiseExtraArgs
+        self.nArgs = noiseExtraArgs
         self.history = [[self.time,self.x,self.y,self.xdot,self.ydot]]
         self.detectionHistory = []
         self.lifetime = lifetime
@@ -48,7 +58,7 @@ class TransientEvent:
         if luminositySeries is None:
             self.lum = 1 + self.noiseFunc(
                                 1, self.loc, self.lifetime,
-                                *self.noiseArgs         
+                                *self.nArgs         
                                          )
             self.luminositySeries = [1]
         else:
@@ -58,7 +68,7 @@ class TransientEvent:
                                         self.luminositySeries[0], 
                                         self.loc, 
                                         self.lifetime,
-                                        *self.noiseArgs))
+                                        *self.nArgs))
         self.markedForDeath = False
         self.eventID = np.random.randint(2**64, dtype = np.uint64)
         self.holisticDetection = False
@@ -80,7 +90,7 @@ class TransientEvent:
                                 self.lum, 
                                 self.loc, 
                                 self.lifetime,
-                                *self.noiseArgs)
+                                *self.nArgs)
         
         if self.loc[0] - self.history[0][0] > self.lifetime:
             self.markedForDeath = True

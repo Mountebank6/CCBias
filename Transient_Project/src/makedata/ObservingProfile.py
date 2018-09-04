@@ -9,10 +9,10 @@ import copy
 class ObservingProfile:
     """
     """
-    def __init__(self, viewingField, viewingFieldArgs,
-                 extraObstruction, extraObstructionArgs,
-                 holisticDetection, holisticDetectionArgs,
-                 surveyNoiseFunction, surveyNoiseFunctionArgs):
+    def __init__(self, viewingField, viewingFieldArgs, vFieldChar,
+                 extraObstruction, extraObstructionArgs, obstructChar,
+                 holisticDetection, holisticDetectionArgs, hDetectChar,
+                 surveyNoiseFunction, surveyNoiseFunctionArgs, sNoiseChar):
         """
         Args:
             viewingField:
@@ -48,18 +48,29 @@ class ObservingProfile:
                     to simulate ambient sky noise
                     takes as args: event
                     returns noise to be added to lum
+            vFieldChar, eObstructChar, hDetectChar, sNoiseChar:
+                Ranges of legal values for the associated extraArgs.
+                each is a list of 2-tuples with lengths equal to
+                the lengths of their corresponding extraArgs.
+                The tuples are the ranges (low,high) over which
+                optimizers will search. (i.e. no value outside of
+                those ranges will be searched)
 
             
                         
         """
         self.view = viewingField
         self.vArgs = viewingFieldArgs
+        self.vChar = vFieldChar
         self.obstruct = extraObstruction
         self.oArgs = extraObstructionArgs
+        self.oChar = obstructChar
         self.holistic = holisticDetection
         self.hArgs = holisticDetectionArgs
+        self.hChar = hDetectChar
         self.surveyNoise = surveyNoiseFunction
         self.sArgs = surveyNoiseFunctionArgs
+        self.sChar = sNoiseChar
 
     def frameDetect(self, time, events):
         """Mark events that are viewed and unobstructed
