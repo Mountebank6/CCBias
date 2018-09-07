@@ -31,9 +31,12 @@ class TransientSurvey:
         self.absoluteTime += 1
         for event in self.events:
             event.advanceEvent()
+        
+        #Detect the next frame of events.
         #Here we decide to exclude new events from the detection
             #calculus
         self.profile.frameDetect(self.absoluteTime, self.events)
+        
         #generate new events
         self.events += self.gen(self.absoluteTime)
 
@@ -63,4 +66,9 @@ class TransientSurvey:
             if event.markedForDeath:
                 corpses.append(event)
         return corpses
+
+    def resetSurvey(self):
+        """Clear events and reset time"""
+        self.events = []
+        self.absoluteTime = 0
 
