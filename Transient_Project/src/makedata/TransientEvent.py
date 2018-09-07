@@ -14,7 +14,7 @@ class TransientEvent:
     """
     def __init__(self, birthLoc, lifetime, classID, 
                  noiseFunction = zeroFunction, noiseExtraArgs = [],
-                 noiseExtraArgsChar = [], luminositySeries = None):
+                 luminositySeries = None):
         """
         Arguments:
             birthloc: length 5 list. Positions:
@@ -35,13 +35,7 @@ class TransientEvent:
             noiseExtraArgs:
                 This is for other arguments that the noise function
                 may require. 
-            noiseExtraArgsChar:
-                Characteristic genome for the extra args. List
-                of ranges of acceptable values for the noiseExtraArgs
-                The ranges are given in 2-tuples of (low, high).
-                These ranges are the values over which the 
-                    optimizers will optimize over. 
-                i.e. nothing outside the ranges will be tested for efficacy
+            
         """
         self.classID = classID
         self.loc = birthLoc
