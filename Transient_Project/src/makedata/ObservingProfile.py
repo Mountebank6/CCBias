@@ -77,9 +77,14 @@ class ObservingProfile:
     def frameDetect(self, time, events):
         """Mark events that are viewed and unobstructed
         """
-        frameDetected = self.obstruct(time, 
-                                      self.view(time, events, 
-                                        *self.vArgs), *self.oArgs)
+        #Get the events that are "in frame" as it were
+        eventsInView = self.view(time, events,*self.vArgs)
+
+        #Apply Obstruction to the "in frame" events 
+        #The result is all events that have data logged
+        frameDetected = self.obstruct(time, eventsInView, *self.oArgs)
+
+
         for event in frameDetected:
             if not event.markedForDeath:
                 event.recordDetection(self.surveyNoise(event, 
