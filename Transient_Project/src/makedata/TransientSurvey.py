@@ -20,6 +20,7 @@ class TransientSurvey:
         self.generator = generator 
         self.profile = profile
         self.events = []
+        self.frameEvents = []
         self.absoluteTime = 0
         self.gen = self.generator.generate
 
@@ -31,6 +32,13 @@ class TransientSurvey:
         self.absoluteTime += 1
         for event in self.events:
             event.advanceEvent()
+            
+            #Record what events are alive in this frame,
+            #   and what index in its history this frame is
+            self.frameEvents.append([])
+            if not event.markedForDeath:
+                index = len(event.history) - 1
+                self.frameEvents[-1].append((event, index))
         
         #Detect the next frame of events.
         #Here we decide to exclude new events from the detection
@@ -71,4 +79,18 @@ class TransientSurvey:
         """Clear events and reset time"""
         self.events = []
         self.absoluteTime = 0
+
+    def setObservingProfile(self, profile):
+        """Change the observing profile and re-detect events
+
+        Args:
+            profile:
+                The ObservingProfile object to change to.
+        """
+
+        for event in self.events:
+            event.clearDetectionHistory()
+        
+        #for i in range(self.absoluteTime):
+        #    self.profile.frameDetect(i+1, self.frameEvents[i])
 

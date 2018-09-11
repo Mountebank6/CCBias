@@ -97,3 +97,8 @@ class TransientEvent:
         """
         self.detectionHistory.append([self.time,self.lum,noise])
 
+    def clearDetectionHistory(self):
+        """Empty detectionHistory and remove holistic detection"""
+        self.holisticDetection = False
+        self.detectionHistory = []
+
