@@ -74,43 +74,23 @@ class ObservingProfile:
         self.sArgs = surveyNoiseFunctionArgs
         self.sChar = sNoiseChar
 
-    def frameDetect(self, time, events):
+    def frameDetect(self, time, frameEvents):
         """Mark events that are viewed and unobstructed
         """
         #Get the events that are "in frame" as it were
-        eventsInView = self.view(time, events,*self.vArgs)
+        eventsInView = self.view(time, frameEvents,*self.vArgs)
 
         #Apply Obstruction to the "in frame" events 
         #The result is all events that have data logged
         frameDetected = self.obstruct(time, eventsInView, *self.oArgs)
 
-
-        for event in frameDetected:
-            if not event.markedForDeath:
-                event.recordDetection(self.surveyNoise(event, 
-                                                   *self.sArgs))
-
-    def frameDetectAtTime(self, time, frameEvents):
-        """Apply retroactive frame detection
         
-        This is to be used after resetting/swapping out the profile.
-        
-        args:
-            time:
-                The absoluteTime of the simulation to 
-                do detection at.
-            frameEvents:
-                The element of TransientSurvey.frameEvents
-                corresponding to the 'time' argument.
-        """
-        events = []
-        indeces = []
-        for element in frameEvents:
-            #Create associated lists of events alive at
-                #this time, and the indeces to access
-                #the events' history at this time
-            events.append(element[0])
-            indeces.append(element[1])
+        for pair in frameDetected:
+            #pair = (event, index)
+            #index is the corresponding index for event.history
+            noise = self.surveyNoise(pair[0], *self.sArgs)
+            pair[0].recordDetection(pair[1], noise)
+
 
         
     def holisticDetect(self, events):
