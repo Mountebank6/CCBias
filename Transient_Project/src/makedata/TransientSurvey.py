@@ -42,8 +42,9 @@ class TransientSurvey:
         
         #Detect the next frame of events.
         #Here we decide to exclude new events from the detection
-            #calculus
-        self.profile.frameDetect(self.absoluteTime, self.events)
+            #calculus. 
+            #i.e. you will never detect the first frame
+        self.profile.frameDetect(self.absoluteTime, self.frameEvents[-1])
         
         #generate new events
         self.events += self.gen(self.absoluteTime)
