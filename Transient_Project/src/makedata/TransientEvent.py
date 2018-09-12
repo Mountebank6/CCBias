@@ -89,13 +89,22 @@ class TransientEvent:
         if self.loc[0] - self.history[0][0] > self.lifetime:
             self.markedForDeath = True
     
-    def recordDetection(self, noise):
+    def recordDetection(self, index, noise):
         """Record the time of detection, and the relevant luminosity 
         
-        the noise factor is to account for noise in the detector,
-        NOT noise in the event itself
+        Args:
+            index:
+                The index in self.history corresponding to
+                    the detection.
+            noise:
+                Noise to be added to luminosity. Represents noise
+                    in the detector, not noise in the event's luminosity
         """
-        self.detectionHistory.append([self.time,self.lum,noise])
+        i = index
+        time = self.history[i][0]
+        pos = (self.history[i][1], self.history[i][2])
+        lum = self.history[i][5]
+        self.detectionHistory.append([time, index, pos, lum, noise])
 
     def clearDetectionHistory(self):
         """Empty detectionHistory and remove holistic detection"""
