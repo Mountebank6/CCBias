@@ -21,7 +21,7 @@ class TransientSurvey:
         self.profile = profile
         self.events = []
         self.frameEvents = []
-        self.absoluteTime = 0
+        self.absoluteTime = -1
         self.gen = self.generator.generate
 
     def advance(self):
@@ -89,9 +89,14 @@ class TransientSurvey:
                 The ObservingProfile object to change to.
         """
 
+        #Clear the past profile's detections
         for event in self.events:
             event.clearDetectionHistory()
         
-        #for i in range(self.absoluteTime):
-        #    self.profile.frameDetect(i+1, self.frameEvents[i])
+        #Perform frameDetection on entire survey history
+        for i in range(self.absoluteTime):
+            self.profile.frameDetect(i, self.frameEvents[i])
+
+        #Mark Holistically detected events
+        self.profile.holisticDetect(self.events)
 

@@ -78,9 +78,11 @@ class ObservingProfile:
         """Mark events that are viewed and unobstructed
         """
         #Get the events that are "in frame" as it were
+            #at the given absoluteTime
         eventsInView = self.view(time, frameEvents,*self.vArgs)
 
         #Apply Obstruction to the "in frame" events 
+            #at the given absoluteTime
         #The result is all events that have data logged
         frameDetected = self.obstruct(time, eventsInView, *self.oArgs)
 
