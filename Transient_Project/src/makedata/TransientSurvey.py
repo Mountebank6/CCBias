@@ -79,15 +79,11 @@ class TransientSurvey:
     def resetSurvey(self):
         """Clear events and reset time"""
         self.events = []
-        self.absoluteTime = 0
+        self.frameEvents = []
+        self.absoluteTime = -1
 
-    def setObservingProfile(self, profile):
-        """Change the observing profile and re-detect events
-
-        Args:
-            profile:
-                The ObservingProfile object to change to.
-        """
+    def reDetectEvents(self):
+        """Run detection again on all events"""
 
         #Clear the past profile's detections
         for event in self.events:
@@ -99,4 +95,31 @@ class TransientSurvey:
 
         #Mark Holistically detected events
         self.profile.holisticDetect(self.events)
+    
+    def setObservingProfile(self, newProfile):
+        """Change the observing profile and re-detect events
+
+        Args:
+            profile:
+                The ObservingProfile object to change to.
+        """
+
+        #Change the profile
+        self.profile = newProfile
+
+        #rerun detection
+        self.reDetectEvents()
+
+    def reRunSurvey(self, time):
+        """Reset the survey and rerun
+        
+        Args:
+            time:
+                number of time-steps to rerun for
+        """
+
+        self.resetSurvey()
+
+        for _ in range(time):
+            self.advance()
 
