@@ -110,6 +110,28 @@ class TransientSurvey:
         #rerun detection
         self.reDetectEvents()
 
+    def setObservingProfileArgs(self, vArgs, oArgs, hArgs, sArgs):
+        """Re detect events after changing ObservingProfile's extra args
+        
+        Args:
+            vArgs:
+                viewingField extra args. list of parameters
+            oArgs:
+                extraObstruction extra args. list of parameters
+            hArgs:
+                holisticDetection extra args. list of parameters
+            sArgs:
+                surveyNoiseFunction extra args. list of parameters    
+        """
+        #Swap out the parameters
+        self.profile.vArgs = vArgs
+        self.profile.oArgs = oArgs
+        self.profile.hArgs = hArgs
+        self.profile.sArgs = sArgs
+
+        #Re run detection
+        self.reDetectEvents()
+
     def reRunSurvey(self, time):
         """Reset the survey and rerun
         
