@@ -145,3 +145,5 @@ class TransientSurvey:
         for _ in range(time):
             self.advance()
 
+    def getMeasurementData(self):
+        return self.profile.measurementFunction(self.events)
