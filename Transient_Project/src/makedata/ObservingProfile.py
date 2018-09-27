@@ -12,7 +12,8 @@ class ObservingProfile:
     def __init__(self, viewingField, viewingFieldArgs, vFieldChar,
                  extraObstruction, extraObstructionArgs, obstructChar,
                  holisticDetection, holisticDetectionArgs, hDetectChar,
-                 surveyNoiseFunction, surveyNoiseFunctionArgs, sNoiseChar):
+                 surveyNoiseFunction, surveyNoiseFunctionArgs, sNoiseChar,
+                 measurementFunction):
         """
         Args:
             viewingField:
@@ -58,7 +59,33 @@ class ObservingProfile:
                 The ranges are inclusive on low, and exclusive on high.
                 If the type given is "int", the optimizer will only
                 search within integers between low and high.
-            
+            measurementFunction:
+                Function. Produces information true and observed event
+                    properties.
+                Args:
+                    List of all events created
+                Returns:
+                    2-tuple of lists of 2-tuples.
+                
+                The top-level 2-tuple is of the form (true, observed).
+                    true is a list of 2-tuples representing data about
+                        the true event distribution.
+                    observed is a list of 2-tuples representing data
+                        about the observed event distribution
+
+                Each 2-tuple inside the lists 'true' and 'observed' is
+                    of the form (list, string). The list is data of the
+                    events and the string is the name of the parameter
+                    measured in the data (e.g. "lifetime)
+                
+                Example: If there were 3 events generated in total,
+                    but only 1 was detected, and we were interested in
+                    event lifetime, measurementFunction would return
+                    something like;
+                        ([([45,23,8],"lifetime")],[([23],"lifetime")])
+                    Where the event with lifetime 23 was the only event 
+                    to be detected
+
                         
         """
         self.view = viewingField
