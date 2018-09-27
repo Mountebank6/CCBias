@@ -100,6 +100,7 @@ class ObservingProfile:
         self.surveyNoise = surveyNoiseFunction
         self.sArgs = surveyNoiseFunctionArgs
         self.sChar = sNoiseChar
+        self.measureFunc = measurementFunction
 
     def frameDetect(self, time, frameEvents):
         """Mark events that are viewed and unobstructed
