@@ -132,14 +132,15 @@ class TransientSurvey:
         #Re run detection
         self.reDetectEvents()
 
-    def reRunSurvey(self, time):
+    def reRunSurvey(self, time=None):
         """Reset the survey and rerun
         
         Args:
             time:
                 number of time-steps to rerun for
         """
-
+        if time is None:
+            time = self.absoluteTime
         self.resetSurvey()
 
         for _ in range(time):
