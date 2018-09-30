@@ -15,9 +15,9 @@ class TransientGenerator:
         """
         Args:
             surveyShape:
-                Tuple: The pixel dimensions of the survey area given
-                    by imageArray.shape
-                generatorFunction: 
+                Tuple: The pixel dimensions of the survey area
+            
+            generatorFunction: 
                 List of Functions used to make new events.
                     Args: 
                         currentFrameNumber:
