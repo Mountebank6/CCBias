@@ -16,11 +16,26 @@ def circleView(time, events, radius, center):
            passedEvents.append(event)
     return passedEvents
 
-def randomObstruction(time, events, passFraction):
+def allView(time, events):
+    """Return all events"""
+    return events
+
+def rectangleView(time, events, size, corner):
+    passedEvents = []
+    for event in events:
+        loc = event.history[-1]
+        if loc[1] >= corner[0]:
+            if loc[1] <= corner[0] + size[0]:
+                if loc[2] >= corner[1]:
+                    if loc[2] <= corner[0] + size[1]:
+                        passedEvents.append(event)
+    return passedEvents
+
+def randomObstruction(time, events, obstructProbability):
     """Return passFraction of events at random"""
     passedEvents = []
     for event in events:
-        if np.random.rand() < passFraction:
+        if np.random.rand() > obstructProbability:
             passedEvents.append(event)
     return passedEvents
 
