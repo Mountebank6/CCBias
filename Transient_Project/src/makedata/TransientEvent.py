@@ -47,7 +47,7 @@ class TransientEvent:
         self.nArgs = noiseExtraArgs
         self.history = [[self.time,self.x,self.y,self.xdot,self.ydot]]
         self.detectionHistory = []
-        self.lifetime = lifetime
+        self.lifetime = int(lifetime)
         self.noiseFunc = noiseFunction
         if luminositySeries is None:
             self.lum = 1 + self.noiseFunc(
@@ -55,6 +55,7 @@ class TransientEvent:
                                 *self.nArgs         
                                          )
             self.luminositySeries = [1]
+            self.history[0] += [1]
         else:
             self.luminositySeries = luminositySeries
             self.lum = (self.luminositySeries[0]  
@@ -63,6 +64,7 @@ class TransientEvent:
                                         self.loc, 
                                         self.lifetime,
                                         *self.nArgs))
+            self.history[0] += [self.lum]
         self.markedForDeath = False
         self.eventID = np.random.randint(2**64, dtype = np.uint64)
         self.holisticDetection = False
@@ -74,20 +76,24 @@ class TransientEvent:
             self.loc[1] += self.loc[3]
             self.loc[2] += self.loc[4]
             [self.time,self.x,self.y,self.xdot,self.ydot] = self.loc
-            self.history.append(
-                            [self.time,self.x,self.y,self.xdot,self.ydot] 
-                          + [self.lum])
+            timeSinceBirth = self.loc[0] - self.history[0][0]
+
             self.lum = (self.luminositySeries[
-                                self.loc[0] % len(self.luminositySeries)
+                                timeSinceBirth % len(self.luminositySeries)
                                              ])
             self.lum += self.noiseFunc(
                                 self.lum, 
                                 self.loc, 
                                 self.lifetime,
                                 *self.nArgs)
-        
-        if self.loc[0] - self.history[0][0] > self.lifetime:
-            self.markedForDeath = True
+            self.history.append(
+                                [self.time,self.x,self.y,self.xdot,self.ydot] 
+                            + [self.lum])
+            
+            #The +1 here accounts for timesincebirth being 1 fewer
+            #than the number of frames the event has been alive
+            if timeSinceBirth + 1 >= self.lifetime:
+                self.markedForDeath = True
     
     def recordDetection(self, index, noise):
         """Record the time of detection, and the relevant luminosity 
