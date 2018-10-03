@@ -30,12 +30,12 @@ class TransientSurvey:
         """
         #tick existing things
         self.absoluteTime += 1
+        self.frameEvents.append([])
         for event in self.events:
             event.advanceEvent()
             
             #Record what events are alive in this frame,
             #   and what index in its history this frame is
-            self.frameEvents.append([])
             if not event.markedForDeath:
                 index = len(event.history) - 1
                 self.frameEvents[-1].append((event, index))
@@ -44,11 +44,23 @@ class TransientSurvey:
         #Here we decide to exclude new events from the detection
             #calculus. 
             #i.e. you will never detect the first frame
-        self.profile.frameDetect(self.absoluteTime, self.frameEvents[-1])
+        if len(self.frameEvents) > 0:
+            self.profile.frameDetect(self.absoluteTime, self.frameEvents[-1])
         
         #generate new events
         self.events += self.gen(self.absoluteTime)
 
+    def advanceWithoutDetection(self):
+        """Advance the simulation without checking for detection"""
+        self.absoluteTime += 1
+        self.frameEvents.append([])
+        for event in self.events:
+            event.advanceEvent()
+            if not event.markedForDeath:
+                index = len(event.history) - 1
+                self.frameEvents[-1].append((event, index))
+        self.events += self.gen(self.absoluteTime)
+    
     def getHolisticDetectedEvents(self):
         """
         Return holistic detected events
