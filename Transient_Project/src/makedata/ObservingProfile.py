@@ -26,6 +26,8 @@ class ObservingProfile:
                         start of the survey
 
                         Events: the list of events that exist
+
+                        survey: the relevant survey object itself
             extraObstruction:
                 Function. Returns a list of events that are
                 potentially observable because they are not 
@@ -37,6 +39,8 @@ class ObservingProfile:
 
                         Events: the list of events that exist
 
+                        survey: the relevant survey object itself
+
             holisticDetection:
                 Function. Takes in a single event (generally dead ones,
                 but not necessarily) and detirmines if they are "detected"
@@ -47,7 +51,11 @@ class ObservingProfile:
             surveyNoiseFunction:
                 Function that generates noise on the events
                     to simulate ambient sky noise
-                    takes as args: event
+                    takes as 
+                    args: 
+                        event
+                            the event to have noise generated on
+                        survey: the relevant survey object itself
                     returns noise to be added to lum
             vFieldChar, eObstructChar, hDetectChar, sNoiseChar:
                 Ranges of legal values for the associated extraArgs.
@@ -63,7 +71,10 @@ class ObservingProfile:
                 Function. Produces information true and observed event
                     properties.
                 Args:
-                    List of all events created
+                    events:
+                        List of all events created
+                    survey: 
+                        the relevant survey object itself
                 Returns:
                     2-tuple of lists of 2-tuples.
                 
@@ -102,32 +113,33 @@ class ObservingProfile:
         self.sChar = sNoiseChar
         self.measureFunc = measurementFunction
 
-    def frameDetect(self, time, frameEvents):
+    def frameDetect(self, time, frameEvents, survey):
         """Mark events that are viewed and unobstructed
         """
         #Get the events that are "in frame" as it were
             #at the given absoluteTime
-        eventsInView = self.view(time, frameEvents,*self.vArgs)
+        eventsInView = self.view(time, frameEvents, survey, *self.vArgs)
 
         #Apply Obstruction to the "in frame" events 
             #at the given absoluteTime
         #The result is all events that have data logged
-        frameDetected = self.obstruct(time, eventsInView, *self.oArgs)
+        frameDetected = self.obstruct(time, eventsInView, 
+                                      survey, *self.oArgs)
 
         
         for pair in frameDetected:
             #pair = (event, index)
             #index is the corresponding index for event.history
-            noise = self.surveyNoise(pair[0], *self.sArgs)
+            noise = self.surveyNoise(pair[0], survey, *self.sArgs)
             pair[0].recordDetection(pair[1], noise)
 
 
         
-    def holisticDetect(self, events):
+    def holisticDetect(self, events, survey):
         """Mark events that are detected overall
         """
         for event in events:
-            if self.holistic(event, *self.hArgs):
+            if self.holistic(event, survey, *self.hArgs):
                 event.holisticDetection = True
             else:
                 event.holisticDetection = False
