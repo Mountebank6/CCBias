@@ -45,7 +45,8 @@ class TransientSurvey:
             #calculus. 
             #i.e. you will never detect the first frame
         if len(self.frameEvents) > 0:
-            self.profile.frameDetect(self.absoluteTime, self.frameEvents[-1])
+            self.profile.frameDetect(self.absoluteTime, 
+                                     self.frameEvents[-1], self)
         
         #generate new events
         self.events += self.gen(self.absoluteTime)
@@ -66,7 +67,7 @@ class TransientSurvey:
         Return holistic detected events
         """
         detectedEvents = []
-        self.profile.holisticDetect(self.events)
+        self.profile.holisticDetect(self.events, self)
         for event in self.events:
             if event.holisticDetection:
                 detectedEvents.append(event)
@@ -103,10 +104,10 @@ class TransientSurvey:
         
         #Perform frameDetection on entire survey history
         for i in range(self.absoluteTime):
-            self.profile.frameDetect(i, self.frameEvents[i])
+            self.profile.frameDetect(i, self.frameEvents[i], self)
 
         #Mark Holistically detected events
-        self.profile.holisticDetect(self.events)
+        self.profile.holisticDetect(self.events, self)
     
     def setObservingProfile(self, newProfile):
         """Change the observing profile and re-detect events
@@ -122,6 +123,9 @@ class TransientSurvey:
         #rerun detection
         self.reDetectEvents()
 
+    def setGeneratorFunctionArgs(self, args):
+        self.gen.eargs = args
+    
     def setObservingProfileArgs(self, vArgs, oArgs, hArgs, sArgs):
         """Re detect events after changing ObservingProfile's extra args
         

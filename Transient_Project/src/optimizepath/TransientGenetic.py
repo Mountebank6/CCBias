@@ -15,7 +15,7 @@ class TransientGenetic:
     """Class that optimizes survey score with genetic algorithm"""
 
     def __init__(self, survey, scoringFunc, surveyTime,
-                 popSize, mutRate, crossRate, iterations):
+                 popSize, mutRate, crossRate):
         """
         Args:
             survey:
@@ -39,7 +39,6 @@ class TransientGenetic:
         self.surv = survey
         self.crossRate = crossRate
         self.mutRate = mutRate
-        self.iterations = iterations
         
         #Ensure that popsize is divisible by 4
         #This is because the structure of our
@@ -134,18 +133,6 @@ class TransientGenetic:
 
         return [vArgs, oArgs, hArgs, sArgs]
 
-
-    def scoreGenome(self, genome):
-        """Return the score of a genome
-        
-        Args:
-            genome:
-                Genome to be scored
-        """
-        
-        args = self.splitGenome(genome)
-        
-        self.surv.setObservingProfileArgs(*args)
     
     def breed(self, mother, father):
         """Return child-genomes from crossover and mutation
