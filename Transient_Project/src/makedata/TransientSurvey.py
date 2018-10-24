@@ -163,4 +163,4 @@ class TransientSurvey:
             self.advance()
 
     def getMeasurementData(self):
-        return self.profile.measurementFunction(self.events)
+        return self.profile.measurementFunction(self.events, self)

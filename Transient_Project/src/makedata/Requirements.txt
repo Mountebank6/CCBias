@@ -41,6 +41,7 @@ TransientSurvey:
                 Args: 
                     Time: the time in frames since the start of the survey
                     Events: the list of events that exist
+                    Survey: the survey object itself
         viewingFieldExtraArgs:
             list. Extra arguemnts to be passed into the function
         extraObstruction:
@@ -48,6 +49,7 @@ TransientSurvey:
                 Args: 
                     Time: the time in frames since the start of the survey
                     Events: the list of events that exist
+                    Survey: the survey object itself
         extraObservationExtraArgs:
             list. Extra arguemnts to be passed into the function
         holisticDetection:
@@ -55,6 +57,7 @@ TransientSurvey:
                 Args:
                     Event:
                         event to be tested
+                    Survey: the survey object itself
                 Returns: True if detected, False if not detected
         holisticDetectionExtraArgs:
             list. Extra arguemnts to be passed into the function
@@ -63,6 +66,7 @@ TransientSurvey:
                 Args:
                     Event:
                         event to be tested
+                    Survey: the survey object itself
                 Returns: noise to be added to lum
         surveyNoiseFunctionExtraArgs:
             list. Extra arguemnts to be passed into the function
@@ -73,7 +77,8 @@ TransientSurvey:
             Function. Produces information true and observed event
                 properties.
             Args:
-                List of all events created
+                Events: list of events to be measured
+                Survey: the survey object itself
             Returns:
                 2-tuple of lists of 2-tuples.
             
