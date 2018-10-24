@@ -49,7 +49,7 @@ class TransientSurvey:
                                      self.frameEvents[-1], self)
         
         #generate new events
-        self.events += self.gen(self.absoluteTime)
+        self.events += self.gen(self.absoluteTime, self)
 
     def advanceWithoutDetection(self):
         """Advance the simulation without checking for detection"""
@@ -60,7 +60,7 @@ class TransientSurvey:
             if not event.markedForDeath:
                 index = len(event.history) - 1
                 self.frameEvents[-1].append((event, index))
-        self.events += self.gen(self.absoluteTime)
+        self.events += self.gen(self.absoluteTime, self)
     
     def getHolisticDetectedEvents(self):
         """
