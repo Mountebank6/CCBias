@@ -9,10 +9,19 @@ import copy
 class ObservingProfile:
     """
     """
-    def __init__(self, viewingField, viewingFieldArgs, vFieldChar,
-                 extraObstruction, extraObstructionArgs, obstructChar,
-                 holisticDetection, holisticDetectionArgs, hDetectChar,
-                 surveyNoiseFunction, surveyNoiseFunctionArgs, sNoiseChar,
+    def __init__(self, 
+                 viewingField, viewingFieldArgs, vFieldCharPath,
+                 vFieldCharBias,
+
+                 extraObstruction, extraObstructionArgs, obstructCharPath,
+                 obstructCharBias,
+
+                 holisticDetection, holisticDetectionArgs, hDetectCharPath,
+                 hDetectCharBias,
+
+                 surveyNoiseFunction, surveyNoiseFunctionArgs, sNoiseCharPath,
+                 sNoiseCharBias,
+
                  measurementFunction):
         """
         Args:
@@ -57,7 +66,21 @@ class ObservingProfile:
                             the event to have noise generated on
                         survey: the relevant survey object itself
                     returns noise to be added to lum
-            vFieldChar, eObstructChar, hDetectChar, sNoiseChar:
+            vFieldCharPath,eObstructCharPath,hDetectCharPath,sNoiseCharPath:
+                Characteristic values for search strategy optimization
+                Ranges of legal values for the associated extraArgs.
+                each is a list of 3-tuples with lengthsequal to
+                the lengths of their corresponding extraArgs.
+                The tuples tell the range of values over
+                which to optimize and the datatype. Of the form:
+                (low, high, "float") or (low, high, "int").
+                The ranges are inclusive on low, and exclusive on high.
+                If the type given is "int", the optimizer will only
+                search within integers between low and high.
+            vFieldCharBias,eObstructCharBias,hDetectCharBias,sNoiseCharBias:
+                Characteristic values for Bias Detection.
+                These are the ranges that the Bias extractor will search
+                over.
                 Ranges of legal values for the associated extraArgs.
                 each is a list of 3-tuples with lengthsequal to
                 the lengths of their corresponding extraArgs.
@@ -101,16 +124,16 @@ class ObservingProfile:
         """
         self.view = viewingField
         self.vArgs = viewingFieldArgs
-        self.vChar = vFieldChar
+        self.vChar = vFieldCharPath
         self.obstruct = extraObstruction
         self.oArgs = extraObstructionArgs
-        self.oChar = obstructChar
+        self.oChar = obstructCharPath
         self.holistic = holisticDetection
         self.hArgs = holisticDetectionArgs
-        self.hChar = hDetectChar
+        self.hChar = hDetectCharPath
         self.surveyNoise = surveyNoiseFunction
         self.sArgs = surveyNoiseFunctionArgs
-        self.sChar = sNoiseChar
+        self.sChar = sNoiseCharPath
         self.measureFunc = measurementFunction
 
     def frameDetect(self, time, frameEvents, survey):

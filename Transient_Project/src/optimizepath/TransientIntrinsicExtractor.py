@@ -1,3 +1,7 @@
+"""
+Guess intrinsic distribution using a naive genetic algorithm
+"""
+
 import numpy as np
 import random
 from copy import copy, deepcopy
@@ -15,8 +19,7 @@ class TransientIntrinsicExtractor:
     """Class that optimizes survey score with genetic algorithm"""
 
     def __init__(self, survey, lossFunction, surveyTime,
-                 popSize, mutRate, crossRate, 
-                 generatorFunctionsCharGenome, comparisonData):
+                 popSize, mutRate, crossRate, comparisonData):
         """
         Args:
             survey:
@@ -39,15 +42,6 @@ class TransientIntrinsicExtractor:
             crossRate:
                 probability of crossover in breeding
                     Higher means a more "finely mixed" child genome
-            generatorFunctionsCharGenome:
-                List of lists
-                    The sublists correspond to the characteristic genomes
-                        for the extra args of the associated generator 
-                        functions.
-                    The i'th element of the sublist is a 3-tuple that
-                        defines the min value, max value, and data type
-                        of the i'th argument in the generator functions
-                        extra args
 
         
         """
@@ -57,7 +51,7 @@ class TransientIntrinsicExtractor:
         self.surv = survey
         self.crossRate = crossRate
         self.mutRate = mutRate
-        self.charGenome = generatorFunctionsCharGenome
+        self.charGenome = self.surv.generator.char
         
         #Ensure that popsize is divisible by 4
         #This is because the structure of our

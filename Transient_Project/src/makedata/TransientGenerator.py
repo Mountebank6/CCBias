@@ -11,7 +11,8 @@ class TransientGenerator:
     """
     """
 
-    def __init__(self, surveyShape, generatorFunctions, extraArgs):
+    def __init__(self, surveyShape, generatorFunctions, extraArgs,
+                 genFuncChar):
         """
         Args:
             surveyShape:
@@ -33,13 +34,24 @@ class TransientGenerator:
                     a unique object (e.g. the moon), the generator
                     functions need to be able to check if that object
                     already exists.
-                extraArgs: List of lists. The ith element in extraArgs
-                    is the extra arguments passed to the ith function
-                    in generatorFunctions
+            extraArgs: 
+                List of lists. The ith element in extraArgs
+                is the extra arguments passed to the ith function
+                in generatorFunctions
+            genFuncChar:
+                List of lists
+                    The sublists correspond to the characteristic genomes
+                        for the extra args of the associated generator 
+                        functions.
+                    The i'th element of the sublist is a 3-tuple that
+                        defines the min value, max value, and data type
+                        of the i'th argument in the generator functions
+                        extra args
         """
         self.surveyShape = surveyShape
         self.generatorFunctions = generatorFunctions
         self.eArgs = extraArgs
+        self.char = genFuncChar
 
     def generate(self, currentFrameNumber, survey):
         newEvents = []
