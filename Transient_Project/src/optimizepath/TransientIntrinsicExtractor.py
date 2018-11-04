@@ -21,6 +21,7 @@ class TransientIntrinsicExtractor:
     def __init__(self, survey, lossFunction, surveyTime,
                  popSize, mutRate, crossRate, comparisonData):
         """
+        WARNING: THIS LOSSFUNCTION MUST RETURN NEGATIVE VALUES (OR 0)
         Args:
             survey:
                 The TransientSurvey object to run and reset
@@ -47,6 +48,7 @@ class TransientIntrinsicExtractor:
         """
 
         self.loss = lossFunction
+        self.compare = comparisonData
         self.runTime = surveyTime
         self.surv = survey
         self.crossRate = crossRate
@@ -80,7 +82,7 @@ class TransientIntrinsicExtractor:
             self.surv.setGeneratorFunctionArgs(genome)
             self.surv.reRunSurvey(self.runTime)
             
-            newScore = self.loss(self.surv)
+            newScore = self.loss(self.surv, self.compare)
             self.scorelist.append(newScore)
 
 
