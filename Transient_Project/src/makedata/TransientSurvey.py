@@ -124,7 +124,7 @@ class TransientSurvey:
         self.reDetectEvents()
 
     def setGeneratorFunctionArgs(self, args):
-        self.gen.eargs = args
+        self.generator.eargs = args
     
     def setObservingProfileArgs(self, vArgs, oArgs, hArgs, sArgs):
         """Re detect events after changing ObservingProfile's extra args
