@@ -124,16 +124,24 @@ class ObservingProfile:
         """
         self.view = viewingField
         self.vArgs = viewingFieldArgs
-        self.vChar = vFieldCharPath
+        self.vCharPath = vFieldCharPath
+        self.vCharBias = vFieldCharBias
+        
         self.obstruct = extraObstruction
         self.oArgs = extraObstructionArgs
-        self.oChar = obstructCharPath
+        self.oCharPath = obstructCharPath
+        self.oCharBias = obstructCharBias
+
         self.holistic = holisticDetection
         self.hArgs = holisticDetectionArgs
-        self.hChar = hDetectCharPath
+        self.hCharPath = hDetectCharPath
+        self.hCharBias = hDetectCharBias
+
         self.surveyNoise = surveyNoiseFunction
         self.sArgs = surveyNoiseFunctionArgs
-        self.sChar = sNoiseCharPath
+        self.sCharPath = sNoiseCharPath
+        self.sCharBias = sNoiseCharBias
+        
         self.measureFunc = measurementFunction
 
     def frameDetect(self, time, frameEvents, survey):
