@@ -12,7 +12,7 @@ class TransientGenerator:
     """
 
     def __init__(self, surveyShape, generatorFunctions, extraArgs,
-                 genFuncChar):
+                 genFuncCharBias):
         """
         Args:
             surveyShape:
@@ -38,20 +38,21 @@ class TransientGenerator:
                 List of lists. The ith element in extraArgs
                 is the extra arguments passed to the ith function
                 in generatorFunctions
-            genFuncChar:
-                List of lists
+            genFuncCharBias:
+                List of lists of tuples
                     The sublists correspond to the characteristic genomes
                         for the extra args of the associated generator 
                         functions.
                     The i'th element of the sublist is a 3-tuple that
                         defines the min value, max value, and data type
                         of the i'th argument in the generator functions
-                        extra args
+                        extra args.
+                        The ranges are inclusive on min, and exclusive on max
         """
         self.surveyShape = surveyShape
         self.generatorFunctions = generatorFunctions
         self.eArgs = extraArgs
-        self.char = genFuncChar
+        self.charBias = genFuncCharBias
 
     def generate(self, currentFrameNumber, survey):
         newEvents = []

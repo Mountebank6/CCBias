@@ -69,7 +69,7 @@ class ObservingProfile:
             vFieldCharPath,eObstructCharPath,hDetectCharPath,sNoiseCharPath:
                 Characteristic values for search strategy optimization
                 Ranges of legal values for the associated extraArgs.
-                each is a list of 3-tuples with lengthsequal to
+                each is a list of 3-tuples with lengths equal to
                 the lengths of their corresponding extraArgs.
                 The tuples tell the range of values over
                 which to optimize and the datatype. Of the form:
@@ -82,7 +82,7 @@ class ObservingProfile:
                 These are the ranges that the Bias extractor will search
                 over.
                 Ranges of legal values for the associated extraArgs.
-                each is a list of 3-tuples with lengthsequal to
+                each is a list of 3-tuples with lengths equal to
                 the lengths of their corresponding extraArgs.
                 The tuples tell the range of values over
                 which to optimize and the datatype. Of the form:
