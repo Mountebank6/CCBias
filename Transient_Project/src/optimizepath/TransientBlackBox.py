@@ -68,13 +68,20 @@ class TransientBlackBox:
     def globalScaledToLocalScaled(self, globalScaled, radius):
         return
     
-    #Prescreening- PlackettBurmann is messed up for some n, so we go 
-    #resolution III first order
-    def localResolutionIII(self, scaledVec, trustRadius):
-        """Return the weights of a local PlackettBurman experiment"""
+    #For prescreening
+    def localPlackettBurmann(self, scaledVec, trustRadius):
+        """Return the weights of a local PlackettBurman experiment
+        
+        scaledVec and trustRadius are in global scaled 'units'
+        """
         dim = len(scaledVec)
         success = False
         i = 0
+        #We need to do this wacky method because doe procs an error
+        #when n is certain values. This results in 10-30% longer matrices for
+        #n > 30. Unsure the exact distribution. 
+        #Probably has to do with prime number density or something
+         
         while success is False:
             try:
                 experimentMatrix = doe.pbdesign(dim + 4*i)
@@ -83,9 +90,36 @@ class TransientBlackBox:
             except:
                 i += 1
         experimentMatrix = experimentMatrix[:,:dim]
+        
+        #experimentMatrix is D, now we construct X
+        unitLength = trustRadius/np.sqrt(dim)
+        experimentMatrix *= unitLength
+        for i in range(len(experimentMatrix)):
+            experimentMatrix[i] += scaledVec.T
+            for k in range(len(experimentMatrix[i][k])):
+                if experimentMatrix[i][k] > 1:
+                    experimentMatrix[i][k] = 1
+                elif experimentMatrix[i][k] < -1:
+                    experimentMatrix[i][k] = -1
+        resultsVec = np.zeros((len(experimentMatrix),1))
+        for i in range(len(resultsVec)):
+            resultsVec[i] = self.returnValue(experimentMatrix[i].T)
 
+        #Now we solve for beta, the least-squares estimator
+        A = experimentMatrix.T.dot(experimentMatrix)
+        beta = np.linalg.solve(A, experimentMatrix.dot(resultsVec))
+        return beta
 
+    def localResolutionIII(self, scaledVec, trustRadius, 
+                           importantIndeces, repetition):
+        """Return a function that models the space to first order"""
+        meanValue = 0
+        for _ in range(repetition):
+            meanValue += self.returnValue(scaledVec)
+        meanValue /= repetition
 
+        
+        return
 
     def unpackRawCharacteristicPositionVector(self, survey):
         """Return a flattened characteristic vector
