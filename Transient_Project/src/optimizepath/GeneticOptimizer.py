@@ -35,7 +35,7 @@ def GeneticOptimizer(generator_class, generator_args, crossrate, mutrate,
             the function used to score the genomes
         characterized_genome:
             Describes the properties of the components of a single gene
-            See genome_characterizer docstring for more details
+            See genome_characterizer docstring for more details.
     """
     generator = generator_class(*generator_args)
 
