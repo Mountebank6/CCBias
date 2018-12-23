@@ -131,6 +131,7 @@ class TransientGenetic:
         hArgs = genome[vlen+olen : vlen+olen+hlen]
         sArgs = genome[vlen+olen+hlen:]
 
+        #return in a recognizable format
         return [vArgs, oArgs, hArgs, sArgs]
 
     
