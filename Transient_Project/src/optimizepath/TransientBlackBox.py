@@ -18,7 +18,7 @@ class TransientBlackBox:
         Args:
             survey:
                 The initialized survey object to optimize over
-            surveyTime:
+            runTime:
                 The number of frames to run the survey each generation
             lossFunction:
                 Function. Returns the deviation from comparisonData
