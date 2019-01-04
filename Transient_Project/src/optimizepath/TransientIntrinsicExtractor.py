@@ -16,7 +16,10 @@ binomial = np.random.binomial
 sample = random.sample
 
 class TransientIntrinsicExtractor:
-    """Class that optimizes survey score with genetic algorithm"""
+    """Class that optimizes survey score with genetic algorithm
+    
+    This is hideously slow. Basically, never use it.    
+    """
 
     def __init__(self, survey, lossFunction, surveyTime,
                  popSize, mutRate, crossRate, comparisonData):
