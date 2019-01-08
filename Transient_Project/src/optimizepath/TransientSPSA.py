@@ -8,7 +8,20 @@ from copy import deepcopy
 class TransientSPSA:
 
 
-    def __init__(self, blackBox, Q, startingVec, alpha, gamma):
+    def __init__(self, blackBox, Q, startingVec, alpha=1.0, gamma=1.0/6):
+        """
+        Args: 
+            blackBox:
+                A TransientBlackBox object. Can be replace with
+                any class that has a returnValue method that returns float
+            Q:
+                Number of iterations to run the SPSA algorithm
+            startingVec:
+                The vector to start optimization at
+            alpha:
+                a parameter that controls the step size sequence
+                must satisfy 
+        """
         self.bb = blackBox
         self.Q = Q
         self.r0 = np.asarray(startingVec)
@@ -17,9 +30,11 @@ class TransientSPSA:
         self.dim = len(startingVec)
 
     def a(self,n):
+        """Return the nth value of the step-size sequence"""
         return 1/(1+n)**self.alpha
 
     def delta(self,n):
+        """Return the nth value of the probing sequence"""
         return 1/(1+n)**self.gamma
 
     def fixScaledVec(self, scaledVec):
@@ -39,6 +54,7 @@ class TransientSPSA:
             bern = self.bernoulli(self.dim)
             a = self.a(i)
             delta = self.delta(i)
+            self.fixScaledVec(r)
             rplus = r + delta*bern
             self.fixScaledVec(rplus)
             rminus = r - delta*bern
