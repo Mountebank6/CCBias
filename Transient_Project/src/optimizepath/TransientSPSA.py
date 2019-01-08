@@ -23,7 +23,6 @@ class TransientSPSA:
         return 1/(1+n)**self.gamma
 
     def fixScaledVec(self, scaledVec):
-        alt 
         for i in range(len(scaledVec)):
             if np.abs(scaledVec[i]) > 1:
                 scaledVec[i] = np.sign(scaledVec[i])
@@ -36,17 +35,17 @@ class TransientSPSA:
         """Return minimized raw parameters"""
         self.iterations = 0
         r = deepcopy(self.r0)
-        for i in range(Q):
+        for i in range(self.Q):
             bern = self.bernoulli(self.dim)
             a = self.a(i)
             delta = self.delta(i)
-            rplus = self.r + delta*bern
+            rplus = r + delta*bern
             self.fixScaledVec(rplus)
             rminus = r - delta*bern
             self.fixScaledVec(rminus)
             
-            Yplus = blackBox.returnValue(rplus)
-            Yminus = blackBox.returnValue(rminus)
+            Yplus = self.bb.returnValue(rplus)
+            Yminus = self.bb.returnValue(rminus)
 
             for k in range(len(r)):
                 r[k] -= a*(Yplus-Yminus)/(2*delta*bern[k])
