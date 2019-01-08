@@ -1,7 +1,7 @@
 """
 Generate fake sample data for testing.
 
-
+DEPRECATED
 """
 
 
