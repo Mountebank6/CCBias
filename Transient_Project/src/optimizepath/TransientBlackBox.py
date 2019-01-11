@@ -64,10 +64,12 @@ class TransientBlackBox:
         """Return the scaled form of input rawVec"""
         scaledVec = []
         for i in range(len(rawVec)):
-            #TODO Add support for min==max situations
-            delta = rawVec[i] - ((self.rawChar[i][1]+self.rawChar[i][0])/2)
-            scaled = delta/((self.rawChar[i][1]-self.rawChar[i][0])/2)
-            scaledVec.append(scaled)
+            if self.rawChar[i][1] == self.rawChar[i][0]:
+                scaledVec.append(0)
+            else:
+                delta = rawVec[i] - ((self.rawChar[i][1]+self.rawChar[i][0])/2)
+                scaled = delta/((self.rawChar[i][1]-self.rawChar[i][0])/2)
+                scaledVec.append(scaled)
         return scaledVec
 
     def applyNewParams(self, scaledVec):
