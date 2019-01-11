@@ -65,5 +65,5 @@ class TransientSPSA:
 
             for k in range(len(r)):
                 r[k] -= a*(Yplus-Yminus)/(2*delta*bern[k])
-        return r
+        return r, self.bb.scaledVecToRawVec(r)
             
