@@ -76,6 +76,8 @@ class TransientBlackBox:
         rawVec = self.scaledVecToRawVec(scaledVec)
         surv = self.surv
         genExtraArgs = []
+        for _ in range(len(self.surv.generator.eArgs)):
+            genExtraArgs.append([])
         vArgs = []
         lenV = len(self.surv.profile.vCharBias)
         oArgs = []
@@ -95,7 +97,17 @@ class TransientBlackBox:
             elif i - lenV - lenO - lenH in range(lenS):
                 sArgs.append(rawVec[i]) 
             else:
-                genExtraArgs.append(rawVec[i])
+                genStart = i
+                break
+        for i in range(len(rawVec)-genStart):
+            offset = 0
+            for j in range(len(genExtraArgs)):
+                if i < len(self.surv.generator.eArgs[j]) + offset:
+                    k = j
+                    break
+                else:
+                    offset += len(self.surv.generator.eArgs[j])
+            genExtraArgs[k].append(rawVec[i+genStart])
         
         surv.setObservingProfileArgs(vArgs, oArgs, hArgs, sArgs)
         surv.setGeneratorFunctionArgs(genExtraArgs)
