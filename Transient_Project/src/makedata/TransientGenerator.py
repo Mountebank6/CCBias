@@ -43,11 +43,11 @@ class TransientGenerator:
                     The sublists correspond to the characteristic genomes
                         for the extra args of the associated generator 
                         functions.
-                    The i'th element of the sublist is a 3-tuple that
-                        defines the min value, max value, and data type
-                        of the i'th argument in the generator functions
+                    The i'th element of the sublist is a 2-tuple that
+                        defines the min value, then the max value
+                        of the ith argument in the generator functions
                         extra args.
-                        The ranges are inclusive on min, and exclusive on max
+                        The ranges are inclusive on min, and inclusive on max
         """
         self.surveyShape = surveyShape
         self.generatorFunctions = generatorFunctions
