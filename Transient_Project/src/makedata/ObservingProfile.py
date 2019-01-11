@@ -93,6 +93,16 @@ class ObservingProfile:
             measurementFunction:
                 Function. Produces information true and observed event
                     properties.
+
+                The purpose of this function is to compare the
+                    observed/true properties of ONE observable at
+                    a time. This is because this function does 
+                    not return in data where it is possible to
+                    associate what data points correspond to
+                    the *same* event. e.g. if you have 10 events
+                    with a lifetime and a magnitude, you cannot tell
+                    what magnitude belonged to the same event as a given
+                    luminosity. 
                 Args:
                     events:
                         List of all events created
