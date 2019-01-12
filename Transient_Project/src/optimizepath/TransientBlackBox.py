@@ -76,6 +76,9 @@ class TransientBlackBox:
         rawVec = self.scaledVecToRawVec(scaledVec)
         surv = self.surv
         genExtraArgs = []
+        l = self.surv.generator.eArgs
+        numGenArgs = len([item for sublist in l for item in sublist])
+        
         for _ in range(len(self.surv.generator.eArgs)):
             genExtraArgs.append([])
         vArgs = []
@@ -86,6 +89,7 @@ class TransientBlackBox:
         lenH = len(self.surv.profile.hCharBias)
         sArgs = []
         lenS = len(self.surv.profile.sCharBias)
+        assert len(rawVec) == lenV + lenO + lenH + lenS + len(genExtraArgs)
 
         for i in range(len(rawVec)):
             if i in range(lenV):
@@ -127,7 +131,7 @@ class TransientBlackBox:
         charPositionVec += charObsBias
         for i in range(len(charGenBias)):
             for k in range(len(charGenBias[i])):
-                charPositionVec += charGenBias[i][k]
+                charPositionVec += [charGenBias[i][k]]
         
         
         return charPositionVec
