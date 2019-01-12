@@ -17,14 +17,14 @@ class TransientSPSA:
             Q:
                 Number of iterations to run the SPSA algorithm
             startingVec:
-                The vector to start optimization at
+                The vector to start optimization at. Scaled
             alpha:
                 a parameter that controls the step size sequence
                 must satisfy 
         """
         self.bb = blackBox
         self.Q = Q
-        self.r0 = np.asarray(startingVec)
+        self.r0 = np.asarray(startingVec, dtype=np.float)
         self.alpha = alpha
         self.gamma = gamma
         self.dim = len(startingVec)
@@ -65,5 +65,6 @@ class TransientSPSA:
 
             for k in range(len(r)):
                 r[k] -= a*(Yplus-Yminus)/(2*delta*bern[k])
+            self.fixScaledVec(r)
         return r, self.bb.scaledVecToRawVec(r)
             
