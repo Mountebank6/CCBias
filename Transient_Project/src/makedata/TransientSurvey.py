@@ -161,6 +161,7 @@ class TransientSurvey:
 
         for _ in range(time):
             self.advance()
+        self.profile.holisticDetect(self.events, self)
 
     def getMeasurementData(self):
         return self.profile.measurementFunction(self.events, self)
