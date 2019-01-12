@@ -89,7 +89,7 @@ class TransientBlackBox:
         lenH = len(self.surv.profile.hCharBias)
         sArgs = []
         lenS = len(self.surv.profile.sCharBias)
-        assert len(rawVec) == lenV + lenO + lenH + lenS + len(genExtraArgs)
+        assert len(rawVec) == lenV + lenO + lenH + lenS + numGenArgs
 
         for i in range(len(rawVec)):
             if i in range(lenV):
