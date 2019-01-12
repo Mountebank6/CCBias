@@ -34,7 +34,7 @@ class ObservingProfile:
                         Time: the time in frames since the 
                         start of the survey
 
-                        Events: the list of events that exist
+                        FrameEvents: the current FrameEvents
 
                         survey: the relevant survey object itself
             extraObstruction:
