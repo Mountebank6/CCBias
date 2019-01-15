@@ -2,6 +2,8 @@
 Represent a path through the 2D search space as a binary sequence
 
 Convert to and from binary representations
+
+DEPRECATED
 """
 
 import numpy as np

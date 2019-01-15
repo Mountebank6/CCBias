@@ -38,7 +38,7 @@ for i in range(len(superbiasedarray)):
 
 scores, population = gen.GeneticOptimizer(trans.TransientSeries,[shap, dt, 
                         number, superbiasedarray, mean, sigm], 0.1, 0.03,
-                        500, 50, scor.int_intensity_square,
+                        250, 500, scor.int_intensity_square,
                         gen.genome_characterizer([0,0,10], [499,499,10],
                         ["int", "int","int"]))
 

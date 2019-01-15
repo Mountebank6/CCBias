@@ -6,3 +6,4 @@ Transient_Project/.vscode/settings.json
 *.pydevproject
 Transient_Project/.vscode/.ropeproject/objectdb
 Transient_Project/.vscode/.ropeproject/config.py
+*.vscode

@@ -3,8 +3,7 @@ Library of Performance Functions for use by the optimizers
 
 There is a pseudo-standardized argument priority for the scoring functions
 that give scores independent of the past (i.e. depend only on
-the current data being fed into it). Arguments with lower priority
-are fed in earlier:
+the individual frames, not their order). 
     Argument Priority:
         1- The generator to draw from (e.g. a TransientSeries object)
         2- Row location around which to score
