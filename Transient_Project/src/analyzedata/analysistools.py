@@ -1,5 +1,6 @@
 """Useful tools for looking at image data
 
+DEPRECATED
 """
 import numpy as np
 import copy

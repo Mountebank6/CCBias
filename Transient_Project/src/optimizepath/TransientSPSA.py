@@ -38,11 +38,13 @@ class TransientSPSA:
         return 1/(1+n)**self.gamma
 
     def fixScaledVec(self, scaledVec):
+        """Truncate the input vector so that it lies within [-1,1]^dim"""
         for i in range(len(scaledVec)):
             if np.abs(scaledVec[i]) > 1:
                 scaledVec[i] = np.sign(scaledVec[i])
 
     def bernoulli(self, N):
+        """Return a bernoulli distributed N-dimensional numpy vector"""
         bern = np.random.choice([-1/2,1/2], N)
         return bern
 

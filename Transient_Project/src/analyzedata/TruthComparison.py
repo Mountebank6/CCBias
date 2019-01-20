@@ -1,7 +1,7 @@
 """Compare observed distributions of event properties
 with true distributions
 
-
+DEPRECATED
 """
 import numpy as np
 from scipy import stats

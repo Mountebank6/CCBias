@@ -1,14 +1,18 @@
 """
 Class to encode the observing profile as well
 as detection thresholds
+
+From a conceptual point of view, the Observing Profile plays a 
+critical role in the functioning of CCBias. After the synthetic
+truth-data is generated, the Observing Profile (OP), dependent on its 
+parameters, filters out the data that the OP determines the observer
+failed to detect. 
 """
 
 import numpy as np
 import copy
 
 class ObservingProfile:
-    """
-    """
     def __init__(self, 
                  viewingField, viewingFieldArgs, vFieldCharPath,
                  vFieldCharBias,
@@ -26,34 +30,50 @@ class ObservingProfile:
         """
         Args:
             viewingField:
-                Function. Returns a list of events that are 
-                potentially observable because the "telescope"
-                is pointed at them. This selection should
-                be orthogonal to extraObservation
+                Function. Return an array of events following the FrameEvents
+                    convention. The viewingField should look at the events
+                    in the FrameEvents input and remove the events that 
+                    have inappropriate location.
+
+                    Example: If the observer is a telescope, the viewingField
+                    function might remove all events outside the field of
+                    view of the telescope.
+
                     Args: 
                         Time: the time in frames since the 
                         start of the survey
 
-                        FrameEvents: the current FrameEvents
+                        FrameEvents: the current FrameEvents (see
+                            TransientSurvey for FrameEvents convention)
 
-                        survey: the relevant survey object itself
+                        survey: the survey object that holds the events
             extraObstruction:
-                Function. Returns a list of events that are
-                potentially observable because they are not 
-                obstructed by anything. This selection
-                should be orthogonal to viewingField
+                Function. Return an array of events following the FrameEvents
+                    convention. The extraObstruction should look at the events
+                    in the FrameEvents input and remove events for reasons
+                    *other* than location data.
+
+                    Example: If events were only detectable beyond some
+                    luminosity/intensity threshold, extraObstruction would
+                    filter out all events below that threshold.
+
                     Args: 
                         Time: the time in frames since the 
                         start of the survey
 
-                        Events: the list of events that exist
+                        FrameEvents: the list of events that exist
 
                         survey: the relevant survey object itself
 
             holisticDetection:
-                Function. Takes in a single event (generally dead ones,
-                but not necessarily) and detirmines if they are "detected"
-                If they are, returns True
+                Function. Look at an event's detectionHistory and return true 
+                    if the input event is a confirmed detection. 
+                    Otherwise returns false.
+
+                    The purpose of holisticDetection is to distinguish
+                    between events that are confirmed detections or merely
+                    candidate detections. 
+
                     Args:
                         Event:
                             event to be tested
