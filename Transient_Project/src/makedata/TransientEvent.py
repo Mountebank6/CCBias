@@ -71,6 +71,7 @@ class TransientEvent:
         
     
     def advanceEvent(self):
+        """Advance the event simulation by one tick"""
         if not self.markedForDeath:
             self.loc[0] += 1
             self.loc[1] += self.loc[3]

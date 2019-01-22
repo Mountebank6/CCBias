@@ -73,6 +73,7 @@ class TransientBlackBox:
         return scaledVec
 
     def applyNewParams(self, scaledVec):
+        """Apply the scaledVec parameter vector to the blackbox"""
         rawVec = self.scaledVecToRawVec(scaledVec)
         surv = self.surv
         genExtraArgs = []

@@ -63,9 +63,7 @@ class TransientSurvey:
         self.events += self.gen(self.absoluteTime, self)
     
     def getHolisticDetectedEvents(self):
-        """
-        Return holistic detected events
-        """
+        """Return holistic detected events"""
         detectedEvents = []
         self.profile.holisticDetect(self.events, self)
         for event in self.events:
@@ -124,6 +122,7 @@ class TransientSurvey:
         self.reDetectEvents()
 
     def setGeneratorFunctionArgs(self, args):
+        """Set the Generator Functions' arguments"""
         self.generator.eargs = args
     
     def setObservingProfileArgs(self, vArgs, oArgs, hArgs, sArgs):
