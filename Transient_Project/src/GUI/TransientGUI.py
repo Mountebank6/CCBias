@@ -8,6 +8,7 @@ May 2017
 '''
 
 import tkinter as tk
+from tkinter import filedialog
 from tkinter import ttk
 from tkinter import scrolledtext
 from tkinter import Menu
@@ -92,6 +93,22 @@ class CCBias():
         
         assembler.add(OPMaker, text='Observing Profile Maker')
         assembler.add(GenMaker, text='Generator Maker')
+        
+        self.OPPath = ""
+        def prompt():
+            self.OPPath = filedialog.askopenfilename()
+        
+        def wackyPrint():
+            print(self.OPPath)
+        #prompt = filedialog.askopenfilename
+
+
+        fileUpload = tk.Button(OPMaker, text="Upload File", command=prompt)
+        fileUpload2 = tk.Button(OPMaker, text="Print it", 
+                                command=wackyPrint)
+        
+        fileUpload.grid()
+        fileUpload2.grid()
         assembler.pack()
 
         assemblyLabel.grid()
@@ -112,19 +129,22 @@ class CCBias():
         # Button 1
         rel = factory.createButton(0).getButtonConfig()[0]
         fg  = factory.createButton(0).getButtonConfig()[1]
-        action = tk.Button(self.monty, text="Button "+str(0+1), relief=rel, foreground=fg)   
+        action = tk.Button(self.monty, text="Button "+str(0+1), 
+                           relief=rel, foreground=fg)   
         action.grid(column=0, row=1)  
 
         # Button 2
         rel = factory.createButton(1).getButtonConfig()[0]
         fg  = factory.createButton(1).getButtonConfig()[1]
-        action = tk.Button(self.monty, text="Button "+str(1+1), relief=rel, foreground=fg)   
+        action = tk.Button(self.monty, text="Button "+str(1+1), 
+                           relief=rel, foreground=fg)   
         action.grid(column=1, row=1)  
         
         # Button 3
         rel = factory.createButton(2).getButtonConfig()[0]
         fg  = factory.createButton(2).getButtonConfig()[1]
-        action = tk.Button(self.monty, text="Button "+str(2+1), relief=rel, foreground=fg)   
+        action = tk.Button(self.monty, text="Button "+str(2+1), 
+                           relief=rel, foreground=fg)   
         action.grid(column=2, row=1)          
         
   
