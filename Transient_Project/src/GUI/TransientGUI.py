@@ -12,6 +12,9 @@ from tkinter import filedialog
 from tkinter import ttk
 from tkinter import scrolledtext
 from tkinter import Menu
+import sys
+
+getFile = filedialog.askopenfilename
 
 class ButtonFactory():
     def createButton(self, type_):
@@ -40,7 +43,16 @@ buttonTypes = [ButtonRidge, ButtonSunken, ButtonGroove]
 class CCBias():
     def __init__(self): 
         self.win = tk.Tk()         
-        self.win.title("CCBias")      
+        self.win.title("CCBias")  
+        self.paths = {'vField': None,
+                        'eObs': None,
+                        'holDetect': None,
+                        'measureFile': None}
+        
+        (self.vFieldPath, self.eObsPath, 
+         self.holDetectPath, self.measureFilePath) = 4*[None]    
+        
+        
         self.createWidgets()
 
     def createWidgets(self):    
@@ -87,37 +99,46 @@ class CCBias():
         assemblyLabel = ttk.LabelFrame(parent, 
                                       text='Components')
         assembler = ttk.Notebook(assemblyLabel)
-        OPMaker = ttk.Frame(assembler)
         GenMaker = ttk.Frame(assembler)
-
+        self.createOPMaker(assembler)
         
-        assembler.add(OPMaker, text='Observing Profile Maker')
+        
         assembler.add(GenMaker, text='Generator Maker')
         
-        self.OPPath = ""
-        def prompt():
-            self.OPPath = filedialog.askopenfilename()
-        
-        def wackyPrint():
-            print(self.OPPath)
-        #prompt = filedialog.askopenfilename
 
-
-        fileUpload = tk.Button(OPMaker, text="Upload File", command=prompt)
-        fileUpload2 = tk.Button(OPMaker, text="Print it", 
-                                command=wackyPrint)
-        
-        fileUpload.grid()
-        fileUpload2.grid()
         assembler.pack()
 
         assemblyLabel.grid()
 
     def createOPMaker(self, parent):
         """Create and grid the OP Maker interactables"""
+        OPMaker = ttk.Frame(parent)
+        parent.add(OPMaker, text='Observing Profile Maker')
 
         
+        loadVFieldFile = tk.Button(OPMaker, text="Upload viewingField",
+                    command = lambda: self.setPaths('vField',getFile()))
+        loadEObsFile = tk.Button(OPMaker, text="Upload extraObs",
+                    command = lambda: self.setPaths('eField',getFile()))
+        loadholDetectFile = tk.Button(OPMaker, text="Upload holisticDetect",
+                    command = lambda: self.setPaths('holDetect',getFile()))
+        loadMeasureFile = tk.Button(OPMaker, text="Upload measurementFunction",
+                    command = lambda: self.setPaths('measureFile',getFile()))
+        
+        loadVFieldFile.grid()
+        loadEObsFile.grid()
+        loadholDetectFile.grid()
+        loadMeasureFile.grid()
         pass
+
+    #This don't werk
+    def setPaths(self, kind, path):
+        self.paths[kind] = path
+        config_file = path
+        with open(config_file) as f:
+            code = compile(f.read(), config_file, 'exec')
+            exec(code, globals(), locals())
+        print(str(locals()))
 
     def createGeneratorMaker(self, parent):
         pass
