@@ -126,6 +126,10 @@ class CCBias():
         loadMeasureFile = tk.Button(OPMaker, text="Upload measurementFunction",
                     command = lambda: self.setPaths('measureFile',getFile()))
         
+        testShit = tk.Button(OPMaker, text="test",
+                    command = lambda: print((self.paths['vField'])))
+        testShit.grid()
+        
         loadVFieldFile.grid()
         loadEObsFile.grid()
         loadholDetectFile.grid()
@@ -144,11 +148,11 @@ class CCBias():
             path *must* end in '.py' """
         for i in range(len(path)):
             loc = None
-            if path[-i] == '\\' or path[-i] == "/":
+            if path[-i] == '\\' or path[-i] == '/':
                 loc = len(path) - i
                 break
-            if loc is None:
-                raise IndexError("No \\ or /in path")
+        if loc is None:
+            raise IndexError("No \\ or /in path")
         return path[loc+1:-3]
     
     def createGeneratorMaker(self, parent):
