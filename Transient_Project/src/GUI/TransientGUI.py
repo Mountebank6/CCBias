@@ -13,6 +13,7 @@ from tkinter import ttk
 from tkinter import scrolledtext
 from tkinter import Menu
 import sys
+import importlib.util
 
 getFile = filedialog.askopenfilename
 
@@ -131,15 +132,25 @@ class CCBias():
         loadMeasureFile.grid()
         pass
 
-    #This don't werk
+    
     def setPaths(self, kind, path):
         self.paths[kind] = path
-        config_file = path
-        with open(config_file) as f:
-            code = compile(f.read(), config_file, 'exec')
-            exec(code, globals(), locals())
-        print(str(locals()))
+        name = self.extractScriptName(path)
 
+
+    def extractScriptName(self, path):
+        """Return the name of a script from its path
+        
+            path *must* end in '.py' """
+        for i in range(len(path)):
+            loc = None
+            if path[-i] == '\\' or path[-i] == "/":
+                loc = len(path) - i
+                break
+            if loc is None:
+                raise IndexError("No \\ or /in path")
+        return path[loc+1:-3]
+    
     def createGeneratorMaker(self, parent):
         pass
 
