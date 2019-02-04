@@ -118,34 +118,75 @@ class CCBias():
         """Create and grid the OP Maker interactables"""
         OPMaker = ttk.Frame(parent)
         parent.add(OPMaker, text='Observing Profile Maker')
-        selectedFunc = tk.StringVar()
-        selectedFunc.set("default")
+        vFieldFunc = tk.StringVar()
+        EObsFunc = tk.StringVar()
+        HolDetectFunc = tk.StringVar()
+        SurveyNoiseFunc = tk.StringVar()
+        MeasureFunc = tk.StringVar()
+        vFieldFunc.set("default")
 
         loadFile = tk.Button(OPMaker, text="Upload File",
-                    command = lambda: self.addFile(getFile()))
-        test = tk.Button(OPMaker, text="test",
-                    command = lambda: print(self.userFiles[-1]))
-        printUserFuncs = tk.Button(OPMaker, text="Display selected func",
-                    command = lambda: print(self.userFuncs[selectedFunc.get()]))
+                    command = lambda: addFile(getFile()))
 
         
-        self.selectFunc = tk.OptionMenu(OPMaker, selectedFunc, 
+        self.selectVFieldFunc = tk.OptionMenu(OPMaker, vFieldFunc, 
                                    *self.userFuncs.keys())
+        self.selectEObsFunc = tk.OptionMenu(OPMaker, EObsFunc, 
+                                   *self.userFuncs.keys())
+        self.selectHolDetectFunc = tk.OptionMenu(OPMaker, HolDetectFunc, 
+                                   *self.userFuncs.keys())
+        self.selectSurveyNoiseFunc = tk.OptionMenu(OPMaker, SurveyNoiseFunc, 
+                                   *self.userFuncs.keys())
+        self.selectMeasureFunc = tk.OptionMenu(OPMaker, MeasureFunc, 
+                                   *self.userFuncs.keys())
+        vFieldSelectorLabel = tk.Label(OPMaker, 
+                            text="Select Viewing Field Function")
+        eObsSelectorLabel = tk.Label(OPMaker, 
+                            text="Select Extra Obstruction Function")
+        hDetectSelectorLabel = tk.Label(OPMaker, 
+                            text="Select holistic detection Function")
+        sNoiseSelectorLabel = tk.Label(OPMaker, 
+                            text="Select survey noise Function")
+        mFuncSelectorLabel = tk.Label(OPMaker, 
+                            text="Select Measurement Function")
         
-        def updateOptionMenus(*args):
+        def nothing(*args):
+            pass
+        
+        def updateVFieldOptionMenus(*args):
             """Recreate the selectFunc Option Menu"""
-            self.selectFunc.destroy()
-            self.selectFunc = tk.OptionMenu(OPMaker, selectedFunc, 
+            temp = vFieldFunc.get()
+            self.selectVFieldFunc.destroy()
+            self.selectVFieldFunc = tk.OptionMenu(OPMaker, vFieldFunc, 
                                     *self.userFuncs.keys())
-            self.selectFunc.grid() 
-        selectedFunc.trace('w', updateOptionMenus)
+            self.selectVFieldFunc.grid(row=1, column = 1) 
+            vFieldFunc.trace('w', nothing)
+            vFieldFunc.set(temp)
+            vFieldFunc.trace('w', updateVFieldOptionMenus)
+        vFieldFunc.trace('w', updateVFieldOptionMenus)
 
         
-        loadFile.grid()
-        test.grid()
-        printUserFuncs.grid()
-        self.selectFunc.grid()
-        pass
+        loadFile.grid(row=0, column = 0)
+        self.selectVFieldFunc.grid(row=1, column = 1)
+        self.selectEObsFunc.grid(row=2, column = 1)
+        self.selectHolDetectFunc.grid(row=3, column = 1)
+        self.selectSurveyNoiseFunc.grid(row=4, column = 1)
+        self.selectMeasureFunc.grid(row=5, column = 1)
+        vFieldSelectorLabel.grid(row=1, column = 0)
+        eObsSelectorLabel.grid(row=2, column = 0)
+        hDetectSelectorLabel.grid(row=3, column = 0)
+        sNoiseSelectorLabel.grid(row=4, column = 0)
+        mFuncSelectorLabel.grid(row=5, column = 0)
+        
+        def addFile(path):
+            """Open a file selection dialogue and update options"""
+            self.paths.append(path)
+            name = self.extractScriptName(path)
+            spec = importlib.util.spec_from_file_location(name, path)
+            self.userFiles.append(importlib.util.module_from_spec(spec))
+            spec.loader.exec_module(self.userFiles[-1])
+            self.updateUserFunctionsDict()
+            updateVFieldOptionMenus()
 
 
 
@@ -158,14 +199,6 @@ class CCBias():
             for pair in inspect.getmembers(userFile, inspect.isfunction):
                 self.userFuncs[pair[0]] = pair[1]
 
-    def addFile(self, path):
-        """Open a file selection dialogue and update options"""
-        self.paths.append(path)
-        name = self.extractScriptName(path)
-        spec = importlib.util.spec_from_file_location(name, path)
-        self.userFiles.append(importlib.util.module_from_spec(spec))
-        spec.loader.exec_module(self.userFiles[-1])
-        self.updateUserFunctionsDict()
 
 
     def setPaths(self, kind, path):
