@@ -154,6 +154,19 @@ class CCBias():
         mFuncSelectorLabel = tk.Label(OPMaker, 
                             text="Select Measurement Function")
         
+        
+        loadFile.grid(row=0, column = 0)
+        self.selectVFieldFunc.grid(row=1, column = 1)
+        self.selectEObsFunc.grid(row=2, column = 1)
+        self.selectHolDetectFunc.grid(row=3, column = 1)
+        self.selectSurveyNoiseFunc.grid(row=4, column = 1)
+        self.selectMeasureFunc.grid(row=5, column = 1)
+        vFieldSelectorLabel.grid(row=1, column = 0)
+        eObsSelectorLabel.grid(row=2, column = 0)
+        hDetectSelectorLabel.grid(row=3, column = 0)
+        sNoiseSelectorLabel.grid(row=4, column = 0)
+        mFuncSelectorLabel.grid(row=5, column = 0)
+
         def nothing(*args):
             pass
         
@@ -168,19 +181,6 @@ class CCBias():
             vFieldFunc.set(temp)
             vFieldFunc.trace('w', updateVFieldOptionMenus)
         vFieldFunc.trace('w', updateVFieldOptionMenus)
-
-        
-        loadFile.grid(row=0, column = 0)
-        self.selectVFieldFunc.grid(row=1, column = 1)
-        self.selectEObsFunc.grid(row=2, column = 1)
-        self.selectHolDetectFunc.grid(row=3, column = 1)
-        self.selectSurveyNoiseFunc.grid(row=4, column = 1)
-        self.selectMeasureFunc.grid(row=5, column = 1)
-        vFieldSelectorLabel.grid(row=1, column = 0)
-        eObsSelectorLabel.grid(row=2, column = 0)
-        hDetectSelectorLabel.grid(row=3, column = 0)
-        sNoiseSelectorLabel.grid(row=4, column = 0)
-        mFuncSelectorLabel.grid(row=5, column = 0)
         
         def addFile(path):
             """Open a file selection dialogue and update options"""
