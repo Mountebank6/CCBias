@@ -115,7 +115,11 @@ class CCBias():
         assemblyLabel.grid()
 
     def createOPMaker(self, parent):
-        """Create and grid the OP Maker interactables"""
+        """Create and grid the OP Maker interactables
+        
+        This is ATROCIOUS but since it's just GUI stuff I guess
+        it's okay.
+        """
         OPMaker = ttk.Frame(parent)
         parent.add(OPMaker, text='Observing Profile Maker')
         vFieldFunc = tk.StringVar()
