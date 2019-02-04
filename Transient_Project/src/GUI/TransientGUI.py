@@ -14,6 +14,7 @@ from tkinter import scrolledtext
 from tkinter import Menu
 import sys
 import importlib.util
+import inspect
 
 getFile = filedialog.askopenfilename
 
@@ -45,10 +46,12 @@ class CCBias():
     def __init__(self): 
         self.win = tk.Tk()         
         self.win.title("CCBias")  
-        self.paths = {'vField': None,
-                        'eObs': None,
-                        'holDetect': None,
-                        'measureFile': None}
+        self.paths = []
+        self.userFiles = []
+        def default(arg):
+            return arg
+        self.userFuncs = {'default': default}
+        self.bla = self.userFuncs.keys()
         
         (self.vFieldPath, self.eObsPath, 
          self.holDetectPath, self.measureFilePath) = 4*[None]    
@@ -115,32 +118,63 @@ class CCBias():
         """Create and grid the OP Maker interactables"""
         OPMaker = ttk.Frame(parent)
         parent.add(OPMaker, text='Observing Profile Maker')
+        selectedFunc = tk.StringVar()
+        selectedFunc.set("default")
+
+        loadFile = tk.Button(OPMaker, text="Upload File",
+                    command = lambda: self.addFile(getFile()))
+        test = tk.Button(OPMaker, text="test",
+                    command = lambda: print(self.userFiles[-1]))
+        printUserFuncs = tk.Button(OPMaker, text="Display selected func",
+                    command = lambda: print(self.userFuncs[selectedFunc.get()]))
 
         
-        loadVFieldFile = tk.Button(OPMaker, text="Upload viewingField",
-                    command = lambda: self.setPaths('vField',getFile()))
-        loadEObsFile = tk.Button(OPMaker, text="Upload extraObs",
-                    command = lambda: self.setPaths('eField',getFile()))
-        loadholDetectFile = tk.Button(OPMaker, text="Upload holisticDetect",
-                    command = lambda: self.setPaths('holDetect',getFile()))
-        loadMeasureFile = tk.Button(OPMaker, text="Upload measurementFunction",
-                    command = lambda: self.setPaths('measureFile',getFile()))
+        self.selectFunc = tk.OptionMenu(OPMaker, selectedFunc, 
+                                   *self.userFuncs.keys())
         
-        testShit = tk.Button(OPMaker, text="test",
-                    command = lambda: print((self.paths['vField'])))
-        testShit.grid()
+        def updateOptionMenus(*args):
+            """Recreate the selectFunc Option Menu"""
+            self.selectFunc.destroy()
+            self.selectFunc = tk.OptionMenu(OPMaker, selectedFunc, 
+                                    *self.userFuncs.keys())
+            self.selectFunc.grid() 
+        selectedFunc.trace('w', updateOptionMenus)
+
         
-        loadVFieldFile.grid()
-        loadEObsFile.grid()
-        loadholDetectFile.grid()
-        loadMeasureFile.grid()
+        loadFile.grid()
+        test.grid()
+        printUserFuncs.grid()
+        self.selectFunc.grid()
         pass
 
-    
-    def setPaths(self, kind, path):
-        self.paths[kind] = path
-        name = self.extractScriptName(path)
 
+
+    def updateUserFunctionsDict(self):
+        
+        def default(arg):
+            return arg
+        self.userFuncs = {'default': default}
+        for userFile in self.userFiles:
+            for pair in inspect.getmembers(userFile, inspect.isfunction):
+                self.userFuncs[pair[0]] = pair[1]
+
+    def addFile(self, path):
+        """Open a file selection dialogue and update options"""
+        self.paths.append(path)
+        name = self.extractScriptName(path)
+        spec = importlib.util.spec_from_file_location(name, path)
+        self.userFiles.append(importlib.util.module_from_spec(spec))
+        spec.loader.exec_module(self.userFiles[-1])
+        self.updateUserFunctionsDict()
+
+
+    def setPaths(self, kind, path):
+        """Add path to the path dictionary
+        
+        DEPRECATED--DOES NOTHING"""
+        #self.paths[kind] = path
+        #name = self.extractScriptName(path)
+        pass
 
     def extractScriptName(self, path):
         """Return the name of a script from its path
