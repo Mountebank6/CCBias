@@ -153,7 +153,8 @@ class CCBias():
                             text="Select survey noise Function")
         mFuncSelectorLabel = tk.Label(OPMaker, 
                             text="Select Measurement Function")
-        
+
+
         
         loadFile.grid(row=0, column = 0)
         self.selectVFieldFunc.grid(row=1, column = 1)
@@ -180,6 +181,9 @@ class CCBias():
             vFieldFunc.trace('w', nothing)
             vFieldFunc.set(temp)
             vFieldFunc.trace('w', updateVFieldOptionMenus)
+        
+        
+        
         vFieldFunc.trace('w', updateVFieldOptionMenus)
         
         def addFile(path):
@@ -194,6 +198,15 @@ class CCBias():
 
 
 
+    def getFunctionArgs(self, func):
+        sig = inspect.signature(func)
+        params = sig.parameters
+        return params
+    
+    def getCharPathEntries(self, func):
+        params = self.getFunctionArgs(func)
+        
+    
     def updateUserFunctionsDict(self):
         
         def default(arg):

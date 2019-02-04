@@ -47,6 +47,8 @@ class ObservingProfile:
                             TransientSurvey for FrameEvents convention)
 
                         survey: the survey object that holds the events
+
+                        *extraArgs: extra arguments
             extraObstruction:
                 Function. Return an array of events following the FrameEvents
                     convention. The extraObstruction should look at the events
