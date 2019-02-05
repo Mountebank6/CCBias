@@ -15,6 +15,7 @@ from tkinter import Menu
 import sys
 import importlib.util
 import inspect
+from copy import deepcopy
 
 getFile = filedialog.askopenfilename
 
@@ -132,6 +133,23 @@ class CCBias():
         loadFile = tk.Button(OPMaker, text="Upload File",
                     command = lambda: addFile(getFile()))
 
+        self.oPStringVars = []
+        self.oPSelectorLabels = []
+        self.selectOPFuncs = []
+        self.oPTraceFuncs = []
+        for i in range(5):
+            self.oPStringVars.append(tk.StringVar())
+            self.oPStringVars[-1].set("default")
+            self.oPSelectorLabels.append(tk.Label(OPMaker,
+                                         text="Select Function"))
+            self.selectOPFuncs.append(tk.OptionMenu(OPMaker,
+                                                    self.oPStringVars[-1],
+                                                    *self.userFuncs.keys()))
+            #def updateOption(*args):
+
+            
+        
+        
         
         self.selectVFieldFunc = tk.OptionMenu(OPMaker, vFieldFunc, 
                                    *self.userFuncs.keys())
@@ -153,8 +171,7 @@ class CCBias():
                             text="Select survey noise Function")
         mFuncSelectorLabel = tk.Label(OPMaker, 
                             text="Select Measurement Function")
-
-
+        
         
         loadFile.grid(row=0, column = 0)
         self.selectVFieldFunc.grid(row=1, column = 1)
@@ -181,9 +198,6 @@ class CCBias():
             vFieldFunc.trace('w', nothing)
             vFieldFunc.set(temp)
             vFieldFunc.trace('w', updateVFieldOptionMenus)
-        
-        
-        
         vFieldFunc.trace('w', updateVFieldOptionMenus)
         
         def addFile(path):
@@ -198,15 +212,6 @@ class CCBias():
 
 
 
-    def getFunctionArgs(self, func):
-        sig = inspect.signature(func)
-        params = sig.parameters
-        return params
-    
-    def getCharPathEntries(self, func):
-        params = self.getFunctionArgs(func)
-        
-    
     def updateUserFunctionsDict(self):
         
         def default(arg):
