@@ -19,29 +19,6 @@ from copy import deepcopy
 
 getFile = filedialog.askopenfilename
 
-class ButtonFactory():
-    def createButton(self, type_):
-        return buttonTypes[type_]()
-            
-class ButtonBase():     
-    relief     ='flat'
-    foreground ='white'
-    def getButtonConfig(self):
-        return self.relief, self.foreground
-    
-class ButtonRidge(ButtonBase):
-    relief     ='ridge'
-    foreground ='red'        
-    
-class ButtonSunken(ButtonBase):
-    relief     ='sunken'
-    foreground ='blue'        
-
-class ButtonGroove(ButtonBase):
-    relief     ='groove'
-    foreground ='green'        
-
-buttonTypes = [ButtonRidge, ButtonSunken, ButtonGroove] 
 
 class CCBias():
     def __init__(self): 
@@ -79,30 +56,10 @@ class CCBias():
         taskControl.add(biasExtraction, text='Bias Extraction')  
 
         taskControl.pack(expand=1, fill="both")  
-        self.monty = ttk.LabelFrame(assembleSim, text=' Monty Python ')
-        #self.monty.grid(column=0, row=0, padx=8, pady=4)        
-
-        #scr = scrolledtext.ScrolledText(self.monty, width=30, height=3, wrap=tk.WORD)
-        #scr.grid(column=0, row=3, sticky='WE', columnspan=3)
-
-        """ #shift-alt-a in VS code to toggle block string literal
-        menuBar2 = Menu(surveyOptimization)
-        self.win.config(menu=menuBar2)
-        fileMenu2 = Menu(menuBar2, tearoff=0)
-        menuBar2.add_cascade(label="File", menu=fileMenu2)
-
-        menuBar = Menu(taskControl)
-        self.win.config(menu=menuBar)
-        fileMenu = Menu(menuBar, tearoff=0)
-        menuBar.add_cascade(label="File", menu=fileMenu)
-        helpMenu = Menu(menuBar, tearoff=0)
-        menuBar.add_cascade(label="Help", menu=helpMenu) """
 
 
         self.createAssemblyTabs(assembleSim)
 
-        
-        #self.createButtons()
 
     def createAssemblyTabs(self, parent):
         """Create the tab that holds simulation assembly"""
@@ -128,12 +85,6 @@ class CCBias():
         """
         self.OPMaker = ttk.Frame(parent)
         parent.add(self.OPMaker, text='Observing Profile Maker')
-        vFieldFunc = tk.StringVar()
-        EObsFunc = tk.StringVar()
-        HolDetectFunc = tk.StringVar()
-        SurveyNoiseFunc = tk.StringVar()
-        MeasureFunc = tk.StringVar()
-        vFieldFunc.set("default")
 
         loadFile = tk.Button(self.OPMaker, text="Upload File",
                     command = lambda: addFile(getFile()))
@@ -168,9 +119,6 @@ class CCBias():
         sNoiseSelectorLabel.grid(row=4, column = 0)
         mFuncSelectorLabel.grid(row=5, column = 0)
 
-        def nothing(*args):
-            pass
-        
         def addFile(path):
             """Open a file selection dialogue and update options"""
             self.paths.append(path)
@@ -202,15 +150,6 @@ class CCBias():
                 self.userFuncs[pair[0]] = pair[1]
 
 
-
-    def setPaths(self, kind, path):
-        """Add path to the path dictionary
-        
-        DEPRECATED--DOES NOTHING"""
-        #self.paths[kind] = path
-        #name = self.extractScriptName(path)
-        pass
-
     def extractScriptName(self, path):
         """Return the name of a script from its path
         
@@ -227,31 +166,6 @@ class CCBias():
     def createGeneratorMaker(self, parent):
         pass
 
-    def createButtons(self):
-            
-        factory = ButtonFactory()
-
-        # Button 1
-        rel = factory.createButton(0).getButtonConfig()[0]
-        fg  = factory.createButton(0).getButtonConfig()[1]
-        action = tk.Button(self.monty, text="Button "+str(0+1), 
-                           relief=rel, foreground=fg)   
-        action.grid(column=0, row=1)  
-
-        # Button 2
-        rel = factory.createButton(1).getButtonConfig()[0]
-        fg  = factory.createButton(1).getButtonConfig()[1]
-        action = tk.Button(self.monty, text="Button "+str(1+1), 
-                           relief=rel, foreground=fg)   
-        action.grid(column=1, row=1)  
-        
-        # Button 3
-        rel = factory.createButton(2).getButtonConfig()[0]
-        fg  = factory.createButton(2).getButtonConfig()[1]
-        action = tk.Button(self.monty, text="Button "+str(2+1), 
-                           relief=rel, foreground=fg)   
-        action.grid(column=2, row=1)          
-        
   
 oop = CCBias()
 oop.win.mainloop()
