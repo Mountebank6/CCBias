@@ -13,8 +13,8 @@ import sys
 import importlib.util
 import inspect
 from copy import deepcopy
-from ..makedata.ObservingProfile import ObservingProfile as ObservingProfile
-from ..makedata.TransientGenerator import TransientGenerator as TransGen
+from ..makedata.ObservingProfile import OP_REQD_ARGS
+from ..makedata.TransientGenerator import TRANS_REQD_ARGS
 
 getFile = filedialog.askopenfilename
 
@@ -33,11 +33,12 @@ class CCBias():
         (self.vFieldPath, self.eObsPath, 
          self.holDetectPath, self.measureFilePath) = 4*[None]  
 
-        self.categories = ["Viewing Field",
-                           "Extra Obstruction",
-                           "Holistic Detection",
-                           "Survey Noise",
-                           ""]
+        self.categories = ["viewingField",
+                           "extraObstruction",
+                           "holisticDetection",
+                           "surveyNoiseFunction",
+                           "measurementFunction"]
+
         self.oPStringVars = []
         self.oPSelectorLabels = []
         self.selectOPOptionMenus = []
@@ -123,6 +124,7 @@ class CCBias():
         sNoiseSelectorLabel.grid(row=4, column = 0)
         mFuncSelectorLabel.grid(row=5, column = 0)
 
+        self.makeOPMakerCharEntries(self.OPMaker)
         def addFile(path):
             """Open a file selection dialogue and update options"""
             self.paths.append(path)
@@ -133,7 +135,37 @@ class CCBias():
             self.updateUserFunctionsDict()
             self.updateOption()
 
+    def makeOPMakerCharEntries(self, OPMaker):
+        """Add the fields for the Characteristic inputs"""
+        self.charEntryFrame = tk.LabelFrame(OPMaker, text="Characteristic Entries")
+        self.charEntryFrame.grid(row=1, column = 3)
+        self.charEntryNotebook = ttk.Notebook(self.charEntryFrame)
+        self.charEntryNotebookFrames = []
+        for key in OP_REQD_ARGS.keys():
+            self.charEntryNotebookFrames.append(tk.Frame(self.charEntryNotebook))
+            self.charEntryNotebook.add(self.charEntryNotebookFrames[-1],
+                                       text = key)
+        self.charEntryNotebook.grid()
+
+
+    
     def nothing(self, *args):
+        pass
+    
+    def getNumberOfCharEntires(self, stringvar):
+        func = self.userFuncs[stringvar.get()]
+        for i in range(len(self.oPStringVars)):
+            if stringvar is self.oPStringVars[i]:
+                use = self.categories[i]
+        paramnum = len(inspect.signature(func).parameters)
+        if paramnum - OP_REQD_ARGS[use] <= 0:
+            return 0
+        else:
+            return paramnum - OP_REQD_ARGS[use]
+
+    
+    def updateCharEntries(self, args, index):
+        
         pass
     
     def updateOption(self, *args):
