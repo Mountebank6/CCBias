@@ -12,6 +12,18 @@ failed to detect.
 import numpy as np
 import copy
 
+VIEWINGFIELD_REQD_ARGS = 3
+EXTRAOBSTRUCTION_REQD_ARGS = 3
+HOLISTIC_DETECTION_REQD_ARGS = 1
+SURVEY_NOISE_FUNCTION_REQD_ARGS = 2
+MEASUREMENT_FUNCTION_REQD_ARGS = 2
+
+OP_REQD_ARGS =[VIEWINGFIELD_REQD_ARGS,
+            EXTRAOBSTRUCTION_REQD_ARGS,
+            HOLISTIC_DETECTION_REQD_ARGS,
+            SURVEY_NOISE_FUNCTION_REQD_ARGS,
+            MEASUREMENT_FUNCTION_REQD_ARGS]
+
 class ObservingProfile:
     def __init__(self, 
                  viewingField, viewingFieldArgs, vFieldCharPath,

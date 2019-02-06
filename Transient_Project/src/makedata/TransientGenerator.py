@@ -7,6 +7,8 @@ events between frames of TransientSurvey
 
 import numpy as np
 
+GENERATOR_FUNCTIONS_REQD_ARGS = 3
+TRANS_REQD_ARGS = [GENERATOR_FUNCTIONS_REQD_ARGS]
 class TransientGenerator:
     """
     """
