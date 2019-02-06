@@ -2,10 +2,7 @@
 Hold the functions that render the GUI
 """
 
-'''
-May 2017
-@author: Burkhard
-'''
+
 
 import tkinter as tk
 from tkinter import filedialog
@@ -16,6 +13,8 @@ import sys
 import importlib.util
 import inspect
 from copy import deepcopy
+from ..makedata.ObservingProfile import ObservingProfile as ObservingProfile
+from ..makedata.TransientGenerator import TransientGenerator as TransGen
 
 getFile = filedialog.askopenfilename
 
@@ -34,6 +33,11 @@ class CCBias():
         (self.vFieldPath, self.eObsPath, 
          self.holDetectPath, self.measureFilePath) = 4*[None]  
 
+        self.categories = ["Viewing Field",
+                           "Extra Obstruction",
+                           "Holistic Detection",
+                           "Survey Noise",
+                           ""]
         self.oPStringVars = []
         self.oPSelectorLabels = []
         self.selectOPOptionMenus = []
@@ -166,6 +170,3 @@ class CCBias():
     def createGeneratorMaker(self, parent):
         pass
 
-  
-oop = CCBias()
-oop.win.mainloop()
