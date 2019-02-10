@@ -1,5 +1,11 @@
 """
 Hold the functions that render the GUI
+
+The GUI is cobbled together to achieve a minimum of workfulness
+The reason is that my project isn't really well-suited to
+GUIfication--it really should be used as a library
+
+This means that the GUI code is kind of a mess
 """
 
 
@@ -26,6 +32,8 @@ class CCBias():
         self.paths = []
         self.userFiles = []
         def default(arg):
+            """Default function that crashes if you try to use it"""
+            raise ValueError("Put in a real function, dummy")
             return arg
         self.userFuncs = {'default': default}
         self.bla = self.userFuncs.keys()
@@ -141,13 +149,67 @@ class CCBias():
         self.charEntryFrame.grid(row=1, column = 3)
         self.charEntryNotebook = ttk.Notebook(self.charEntryFrame)
         self.charEntryNotebookFrames = []
+        self.charEntryNotebookTabComponents = []
         for key in OP_REQD_ARGS.keys():
             self.charEntryNotebookFrames.append(tk.Frame(self.charEntryNotebook))
             self.charEntryNotebook.add(self.charEntryNotebookFrames[-1],
                                        text = key)
+            self.charEntryNotebookTabComponents.append([])
+            
         self.charEntryNotebook.grid()
+        for i in range(len(self.oPStringVars)):
+            self.oPStringVars[i].trace('w', self.getOPCharEntryUpdateFunction(i))
 
-
+    def getOPCharEntryUpdateFunction(self, index):
+        """Return the update function for the StringVar at given index"""
+        def update(*garbage):
+            reqnum = OP_REQD_ARGS[self.categories[index]]
+            selectedFunc = self.userFuncs[self.oPStringVars[index].get()]
+            args = inspect.getargspec(selectedFunc).args
+            try:
+                for component in self.charEntryNotebookTabComponents[index]:
+                    for label in component["Labels"]:
+                        label.destroy()
+                    for entry in component["ArgEntries"]:
+                        entry.destroy()
+                    for pathPair in component["CharPathEntries"]:
+                        pathPair[0].destroy()
+                        pathPair[1].destroy()
+                    for biasPair in component["CharBiasEntries"]:
+                        biasPair[0].destroy()
+                        biasPair[1].destroy()
+            except:
+                pass
+            self.charEntryNotebookTabComponents[index] = []
+            container = self.charEntryNotebookTabComponents[index]
+            boss = self.charEntryNotebookFrames[index]
+            container.append({"Labels":[],
+                              "ArgEntries":[],
+                              "CharPathEntries":[],
+                              "CharBiasEntries":[]})
+            entryStringVars = []
+            for i in range(reqnum, len(args)):
+                argName = args[i]
+                entryStringVars.append([])
+                for _ in range(5):
+                    entryStringVars[-1].append(tk.StringVar())
+                container[0]["Labels"].append(tk.Label(boss,text=argName))
+                container[0]["Labels"][-1].grid(row=2+i, column=0)
+                container[0]["Labels"][-1].grid(row=2+i, column=2)
+                container[0]["ArgEntries"].append(tk.Entry(boss,
+                                            textvariable = entryStringVars[-1][0]))
+                container[0]["ArgEntries"][-1].grid(row = 2+i, column=3)
+                pathEntry = (tk.Entry(boss,textvariable = entryStringVars[-1][1]),
+                             tk.Entry(boss,textvariable = entryStringVars[-1][2]))
+                container[0]["CharPathEntries"].append(pathEntry)
+                container[0]["CharPathEntries"][-1][0].grid(row=2+i, column=5)
+                container[0]["CharPathEntries"][-1][1].grid(row=2+i, column=6)
+                biasEntry = (tk.Entry(boss,textvariable = entryStringVars[-1][3]),
+                             tk.Entry(boss,textvariable = entryStringVars[-1][4]))
+                container[0]["CharBiasEntries"].append(biasEntry)
+                container[0]["CharBiasEntries"][-1][0].grid(row=2+i, column=8)
+                container[0]["CharBiasEntries"][-1][1].grid(row=2+i, column=9)
+        return update
     
     def nothing(self, *args):
         pass
@@ -163,10 +225,6 @@ class CCBias():
         else:
             return paramnum - OP_REQD_ARGS[use]
 
-    
-    def updateCharEntries(self, args, index):
-        
-        pass
     
     def updateOption(self, *args):
         for i in range(5):

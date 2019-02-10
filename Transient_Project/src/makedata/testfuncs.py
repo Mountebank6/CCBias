@@ -3,7 +3,8 @@ Library of functions used for testing the stuff
 """
 
 import numpy as np
-from .TransientEvent import TransientEvent
+from src.makedata.TransientEvent import TransientEvent
+
 
 trans = TransientEvent
 
@@ -19,6 +20,9 @@ def circleView(time, events, radius, center):
 def allView(time, events):
     """Return all events"""
     return events
+
+def manyArgFunc(a,b,c,d,e,f,g,h,i,j,k,l):
+    return
 
 def rectangleView(time, events, size, corner):
     passedEvents = []
