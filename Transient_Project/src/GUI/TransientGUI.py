@@ -34,7 +34,6 @@ class CCBias():
         def default(arg):
             """Default function that crashes if you try to use it"""
             raise ValueError("Put in a real function, dummy")
-            return arg
         self.userFuncs = {'default': default}
         self.bla = self.userFuncs.keys()
         
@@ -150,7 +149,7 @@ class CCBias():
         self.charEntryNotebook = ttk.Notebook(self.charEntryFrame)
         self.charEntryNotebookFrames = []
         self.charEntryNotebookTabComponents = []
-        for key in OP_REQD_ARGS.keys():
+        for key in self.categories:
             self.charEntryNotebookFrames.append(tk.Frame(self.charEntryNotebook))
             self.charEntryNotebook.add(self.charEntryNotebookFrames[-1],
                                        text = key)
