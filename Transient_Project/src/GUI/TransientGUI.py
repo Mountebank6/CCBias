@@ -100,6 +100,8 @@ class CCBias():
 
         loadFile = tk.Button(self.OPMaker, text="Upload File",
                     command = lambda: addFile(getFile()))
+        printArgs = tk.Button(self.OPMaker, text="Print Args",
+                    command = self.getInputArgs)
 
         for i in range(5):
             self.oPStringVars.append(tk.StringVar())
@@ -125,6 +127,7 @@ class CCBias():
         
         
         loadFile.grid(row=0, column = 0)
+        printArgs.grid(row=0, column=1)
         vFieldSelectorLabel.grid(row=1, column = 0)
         eObsSelectorLabel.grid(row=2, column = 0)
         hDetectSelectorLabel.grid(row=3, column = 0)
@@ -182,11 +185,26 @@ class CCBias():
             self.charEntryNotebookTabComponents[index] = []
             container = self.charEntryNotebookTabComponents[index]
             boss = self.charEntryNotebookFrames[index]
-            container.append({"Labels":[],
+            container.append({"ColumnHeaders":[],
+                              "Labels":[],
                               "ArgEntries":[],
                               "CharPathEntries":[],
                               "CharBiasEntries":[]})
             entryStringVars = []
+            container[0]["ColumnHeaders"].append(tk.Label(boss,
+                                          text="--Argument Name--"))
+            container[0]["ColumnHeaders"].append(tk.Label(boss,
+                                          text="--Initial Argument Value--"))
+            container[0]["ColumnHeaders"].append(tk.Label(boss,
+                                          text="--Path Optimization Minimum Value--"))
+            container[0]["ColumnHeaders"].append(tk.Label(boss,
+                                          text="--Path Optimization Maximum Value--"))
+            container[0]["ColumnHeaders"].append(tk.Label(boss,
+                                          text="--Bias Estimation Minimum Value--"))
+            container[0]["ColumnHeaders"].append(tk.Label(boss,
+                                          text="--Bias Estimation Maximum Value--"))
+            for i in range(len(container[0]["ColumnHeaders"])):
+                container[0]["ColumnHeaders"][i].grid(row=1, column=0+i)
             for i in range(reqnum, len(args)):
                 argName = args[i]
                 entryStringVars.append([])
@@ -194,20 +212,20 @@ class CCBias():
                     entryStringVars[-1].append(tk.StringVar())
                 container[0]["Labels"].append(tk.Label(boss,text=argName))
                 container[0]["Labels"][-1].grid(row=2+i, column=0)
-                container[0]["Labels"][-1].grid(row=2+i, column=2)
+                #container[0]["Labels"][-1].grid(row=2+i, column=2)
                 container[0]["ArgEntries"].append(tk.Entry(boss,
                                             textvariable = entryStringVars[-1][0]))
-                container[0]["ArgEntries"][-1].grid(row = 2+i, column=3)
+                container[0]["ArgEntries"][-1].grid(row = 2+i, column=1)
                 pathEntry = (tk.Entry(boss,textvariable = entryStringVars[-1][1]),
                              tk.Entry(boss,textvariable = entryStringVars[-1][2]))
                 container[0]["CharPathEntries"].append(pathEntry)
-                container[0]["CharPathEntries"][-1][0].grid(row=2+i, column=5)
-                container[0]["CharPathEntries"][-1][1].grid(row=2+i, column=6)
+                container[0]["CharPathEntries"][-1][0].grid(row=2+i, column=2)
+                container[0]["CharPathEntries"][-1][1].grid(row=2+i, column=3)
                 biasEntry = (tk.Entry(boss,textvariable = entryStringVars[-1][3]),
                              tk.Entry(boss,textvariable = entryStringVars[-1][4]))
                 container[0]["CharBiasEntries"].append(biasEntry)
-                container[0]["CharBiasEntries"][-1][0].grid(row=2+i, column=8)
-                container[0]["CharBiasEntries"][-1][1].grid(row=2+i, column=9)
+                container[0]["CharBiasEntries"][-1][0].grid(row=2+i, column=4)
+                container[0]["CharBiasEntries"][-1][1].grid(row=2+i, column=5)
         return update
     
     def nothing(self, *args):
@@ -224,7 +242,19 @@ class CCBias():
         else:
             return paramnum - OP_REQD_ARGS[use]
 
-    
+    def getInputArgs(self):
+        args = []
+        try:
+            for i in range(len(self.charEntryNotebookTabComponents)):
+                for components in self.charEntryNotebookTabComponents[i]:
+                    args.append([])
+                    for entry in components["ArgEntries"]:
+                        args[-1].append(float(entry.get()))
+            return args
+        except:
+            print("fill in all the args with numbers, dummy")
+            return
+
     def updateOption(self, *args):
         for i in range(5):
             self.selectOPOptionMenus[i].destroy()
