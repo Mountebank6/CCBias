@@ -153,10 +153,12 @@ class CCBias():
         self.charEntryNotebookFrames = []
         self.charEntryNotebookTabComponents = []
         for key in self.categories:
-            self.charEntryNotebookFrames.append(tk.Frame(self.charEntryNotebook))
-            self.charEntryNotebook.add(self.charEntryNotebookFrames[-1],
-                                       text = key)
-            self.charEntryNotebookTabComponents.append([])
+            if key != "measurementFunction":
+                self.charEntryNotebookFrames.append(
+                            tk.Frame(self.charEntryNotebook))
+                self.charEntryNotebook.add(self.charEntryNotebookFrames[-1],
+                                        text = key)
+                self.charEntryNotebookTabComponents.append([])
             
         self.charEntryNotebook.grid()
         for i in range(len(self.oPStringVars)):
@@ -166,6 +168,8 @@ class CCBias():
         """Return the update function for the StringVar at given index"""
         def update(*garbage):
             reqnum = OP_REQD_ARGS[self.categories[index]]
+            if self.categories[index] == "measurementFunction":
+                return
             selectedFunc = self.userFuncs[self.oPStringVars[index].get()]
             args = inspect.getargspec(selectedFunc).args
             try:
