@@ -19,7 +19,7 @@ import sys
 import importlib.util
 import inspect
 from copy import deepcopy
-from ..makedata.ObservingProfile import OP_REQD_ARGS
+from ..makedata.ObservingProfile import OP_REQD_ARGS, ObservingProfile
 from ..makedata.TransientGenerator import TRANS_REQD_ARGS
 
 getFile = filedialog.askopenfilename
@@ -49,7 +49,8 @@ class CCBias():
         self.oPStringVars = []
         self.oPSelectorLabels = []
         self.selectOPOptionMenus = []
-        self.oPTraceFuncs = []  
+        self.oPTraceFuncs = [] 
+        self.assembledOP = None 
         
         
         self.createWidgets()
@@ -101,7 +102,7 @@ class CCBias():
         loadFile = tk.Button(self.OPMaker, text="Upload File",
                     command = lambda: addFile(getFile()))
         printArgs = tk.Button(self.OPMaker, text="Print Args",
-                    command = self.getInputArgs)
+                    command = self.setOP)
 
         for i in range(5):
             self.oPStringVars.append(tk.StringVar())
@@ -258,6 +259,74 @@ class CCBias():
         except:
             print("fill in all the args with numbers, dummy")
             return
+
+    def getPathChar(self):
+        pathChar = []
+        try:
+            for i in range(len(self.charEntryNotebookTabComponents)):
+                for components in self.charEntryNotebookTabComponents[i]:
+                    pathChar.append([])
+                    for entry in components["CharPathEntries"]:
+                        if float(entry[0].get()) - float(entry[1].get()) > 0:
+                            print("min > max")
+                            raise ValueError("min > max")
+                        pathChar[-1].append((float(entry[0].get()),
+                                            float(entry[1].get())))
+            return pathChar
+        except:
+            print("fill in all the path optimization args with numbers, dummy")
+            return
+    
+    def getBiasChar(self):
+        pathChar = []
+        try:
+            for i in range(len(self.charEntryNotebookTabComponents)):
+                for components in self.charEntryNotebookTabComponents[i]:
+                    pathChar.append([])
+                    for entry in components["CharBiasEntries"]:
+                        if float(entry[0].get()) - float(entry[1].get()) > 0:
+                            print("min > max")
+                            raise ValueError("min > max")
+                        pathChar[-1].append((float(entry[0].get()),
+                                            float(entry[1].get())))
+            return pathChar
+        except:
+            print("fill in all the Bias Estimation args with numbers, dummy")
+            return
+
+    def getOPFunctions(self):
+        funcs = []
+        try:
+            for sV in self.oPStringVars:
+                if sV.get() == "default":
+                    raise ValueError("Change away from default functions")
+                funcs.append(self.userFuncs[sV.get()])
+            return funcs
+        except:
+            print("Change away from default functions")
+            
+    def setOP(self):
+        longArgument = []
+        funcs = self.getOPFunctions()
+        args = self.getInputArgs()
+        pathChar = self.getPathChar()
+        biasChar = self.getBiasChar()
+        for i in range(4):
+            longArgument.append(funcs[i])
+            longArgument.append(args[i])
+            longArgument.append(pathChar[i])
+            longArgument.append(biasChar[i])
+        longArgument.append(funcs[-1])
+        #self.assembledOP = ObservingProfile(*longargument)
+
+        #This is written so horridly to make my linter happy
+        self.assembledOP = ObservingProfile(
+            funcs[0],args[0],pathChar[0],biasChar[0],
+            funcs[1],args[1],pathChar[1],biasChar[1],
+            funcs[2],args[2],pathChar[2],biasChar[2],
+            funcs[3],args[3],pathChar[3],biasChar[3],
+            funcs[4]
+        )
 
     def updateOption(self, *args):
         for i in range(5):
