@@ -97,27 +97,21 @@ class ObservingProfile:
             vFieldCharPath,eObstructCharPath,hDetectCharPath,sNoiseCharPath:
                 Characteristic values for search strategy optimization
                 Ranges of legal values for the associated extraArgs.
-                each is a list of 3-tuples with lengths equal to
+                each is a list of 2-tuples with lengths equal to
                 the lengths of their corresponding extraArgs.
                 The tuples tell the range of values over
-                which to optimize and the datatype. Of the form:
-                (low, high, "float") or (low, high, "int").
-                The ranges are inclusive on low, and exclusive on high.
-                If the type given is "int", the optimizer will only
-                search within integers between low and high.
+                which to optimize. Of the form:
+                (low, high) or (low, high).
             vFieldCharBias,eObstructCharBias,hDetectCharBias,sNoiseCharBias:
                 Characteristic values for Bias Detection.
                 These are the ranges that the Bias extractor will search
                 over.
-                Ranges of legal values for the associated extraArgs.
-                each is a list of 3-tuples with lengths equal to
+                 Ranges of legal values for the associated extraArgs.
+                each is a list of 2-tuples with lengths equal to
                 the lengths of their corresponding extraArgs.
                 The tuples tell the range of values over
-                which to optimize and the datatype. Of the form:
-                (low, high, "float") or (low, high, "int").
-                The ranges are inclusive on low, and exclusive on high.
-                If the type given is "int", the optimizer will only
-                search within integers between low and high.
+                which to optimize. Of the form:
+                (low, high) or (low, high).
             measurementFunction:
                 Function. Produces information true and observed event
                     properties.
