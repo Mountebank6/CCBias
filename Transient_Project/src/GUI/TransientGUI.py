@@ -18,6 +18,7 @@ from tkinter import Menu
 import sys
 import importlib.util
 import inspect
+import pickle
 from copy import deepcopy
 from ..makedata.ObservingProfile import OP_REQD_ARGS, ObservingProfile
 from ..makedata.TransientGenerator import TRANS_REQD_ARGS
@@ -103,6 +104,9 @@ class CCBias():
                     command = lambda: addFile(getFile()))
         printArgs = tk.Button(self.OPMaker, text="Print Args",
                     command = self.setOP)
+        pickleOPButton = tk.Button(self.OPMaker, text="PickleOP",
+                    command = lambda: self.pickleOP(self.assembledOP,
+                                                    "shit"))
 
         for i in range(5):
             self.oPStringVars.append(tk.StringVar())
@@ -129,6 +133,7 @@ class CCBias():
         
         loadFile.grid(row=0, column = 0)
         printArgs.grid(row=0, column=1)
+        pickleOPButton.grid(row=0, column=2)
         vFieldSelectorLabel.grid(row=1, column = 0)
         eObsSelectorLabel.grid(row=2, column = 0)
         hDetectSelectorLabel.grid(row=3, column = 0)
@@ -294,6 +299,17 @@ class CCBias():
             print("fill in all the Bias Estimation args with numbers, dummy")
             return
 
+    def pickleOP(self, assembledOP, filename):
+        """Save the OP to disk"""
+        if assembledOP is None:
+            print("Please assemble OP")
+            return
+        
+        file = open(filename + ".pic", 'x')
+        pickle.dump(assembledOP, file, protocol=3)
+        print("OP succesfully Pickled")
+
+   
     def getOPFunctions(self):
         funcs = []
         try:
