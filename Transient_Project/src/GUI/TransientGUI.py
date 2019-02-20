@@ -89,7 +89,17 @@ class CCBias():
         assembler.pack()
 
         assemblyLabel.grid()
-
+    
+    def createGeneratorMaker(self, parent):
+        """Create and grid the Generator Maker interactables
+        
+        This is ATROCIOUS but since it's just GUI stuff I guess
+        it's okay.
+        """
+        self.GenMaker = ttk.Frame(parent)
+        parent.add(self.GenMaker, text='Generator Maker')
+        
+    
     def createOPMaker(self, parent):
         """Create and grid the OP Maker interactables
         
@@ -360,6 +370,3 @@ class CCBias():
             raise IndexError("No \\ or /in path")
         return path[loc+1:-3]
     
-    def createGeneratorMaker(self, parent):
-        pass
-
