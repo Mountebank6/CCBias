@@ -98,8 +98,12 @@ class CCBias():
         """
         self.GenMaker = ttk.Frame(parent)
         parent.add(self.GenMaker, text='Generator Maker')
+        genFuncNumDict = {}
+        for i in range(10):
+            genFuncNumDict[str(i)] = i
+        genFuncNumStr = tk.StringVar(self.GenMaker)
         
-    
+
     def createOPMaker(self, parent):
         """Create and grid the OP Maker interactables
         
