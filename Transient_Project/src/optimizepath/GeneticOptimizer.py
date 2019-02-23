@@ -2,6 +2,8 @@
 Use a score function to optimize search path using a genetic algorithm
 
 @author = Theo Faridani
+
+DEPRECATED
 """
 
 import numpy as np
