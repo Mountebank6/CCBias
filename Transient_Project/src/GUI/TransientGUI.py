@@ -21,6 +21,7 @@ import inspect
 from copy import deepcopy
 from ..makedata.ObservingProfile import OP_REQD_ARGS, ObservingProfile
 from ..makedata.TransientGenerator import TRANS_REQD_ARGS, TransientGenerator
+from ..makedata.TransientSurvey import TransientSurvey
 
 getFile = filedialog.askopenfilename
 
@@ -77,6 +78,7 @@ class CCBias():
 
 
         self.createAssemblyTabs(assembleSim)
+        self.createSimTab(runSim)
 
 
     def createAssemblyTabs(self, parent):
@@ -578,3 +580,29 @@ class CCBias():
             raise IndexError("No \\ or /in path")
         return path[loc+1:-3]
     
+    def createSimTab(self, parent):
+        """Assemble the stuff that lets you run a sim and save data"""
+        def assembleSimulation():
+            self.survey = TransientSurvey(self.assembledGen, 
+                                          self.assembledOP)
+        def runTheSim(time):
+            for _ in range(time):
+                self.survey.advance()
+        def getMeasurementData():
+            return self.survey.getMeasurementData()
+
+        timeToRun = tk.Entry(parent)
+        assembleSurvey = tk.Button(parent, text="Initialize Survey",
+                                command = assembleSimulation)
+        timeLabel = tk.Label(parent, text="Time to Run")
+        runSurvey = tk.Button(parent, text = "Run The Sim",
+                              command = lambda: runTheSim(int(timeToRun.get())))
+        displayMeasurements = tk.Button(parent, text = "Display Measurements",
+                              command = lambda: print(getMeasurementData()))
+        assembleSurvey.grid(row=0, column=0)
+        timeLabel.grid(row=1, column=0)
+        timeToRun.grid(row=1, column=1)
+        runSurvey.grid(row=2, column=1)
+        displayMeasurements.grid(row=3, column=0)
+
+        return
