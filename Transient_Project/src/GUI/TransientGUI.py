@@ -59,6 +59,10 @@ class CCBias():
         self.genSelectorLabels = []
         self.selectGenOptionMenus = []
 
+        self.pathOptStringVars = []
+        self.pathOptSelectorLabels = []
+        self.selectPathOptOptionMenus = []
+
         self.createWidgets()
 
     def createWidgets(self):    
@@ -66,12 +70,12 @@ class CCBias():
         taskControl = ttk.Notebook(self.win)     
         assembleSim = ttk.Frame(taskControl)
         runSim = ttk.Frame(taskControl)
-        surveyOptimization = ttk.Frame(taskControl)
+        self.surveyOptimization = ttk.Frame(taskControl)
         biasExtraction = ttk.Frame(taskControl) 
 
         taskControl.add(assembleSim, text='Assemble Simulation')  
         taskControl.add(runSim, text='Run Simulation')  
-        taskControl.add(surveyOptimization, text='Survey Optimization')  
+        taskControl.add(self.surveyOptimization, text='Survey Optimization')  
         taskControl.add(biasExtraction, text='Bias Extraction')  
 
         taskControl.pack(expand=1, fill="both")  
@@ -79,6 +83,7 @@ class CCBias():
 
         self.createAssemblyTabs(assembleSim)
         self.createSimTab(runSim)
+        self.createPathTab(self.surveyOptimization)
 
 
     def createAssemblyTabs(self, parent):
@@ -197,6 +202,44 @@ class CCBias():
 
         self.makeOPMakerCharEntries(self.OPMaker)
 
+    def createPathTab(self, parent):
+        """Create the stuff that lets you path-optimize"""
+        
+        loadFile = tk.Button(self.GenMaker, text="Upload File",
+                    command = lambda: self.addFilePathOpt(getFile()))
+        #makeGen = tk.Button(self.GenMaker, text="Assemble Generator",
+        #            command = self.setGen)
+        
+        self.pathOptStringVars.append(tk.StringVar())
+        self.pathOptStringVars[-1].set("default")
+        self.pathOptSelectorLabels.append(tk.Label(self.GenMaker,
+                                         text="Select Function"))  
+        self.selectPathOptOptionMenus.append(tk.OptionMenu(parent,
+                                                    self.genStringVars[-1],
+                                                    *self.userFuncs.keys())) 
+        self.selectPathOptOptionMenus[-1].grid(row=1,column=3)
+
+        timeLabel = tk.Label(parent, text="Running Time Per Genome")
+        popSizeLabel = tk.Label(parent, text="Cohort Population Size" + 
+                                "(must be divisible by 4)")
+        mutRateLabel = tk.Label(parent, text="Mutation probability per gene")
+        crossRateLabel = tk.Label(parent, text="Crossover probability per gene")
+
+        time = tk.Entry(parent)
+        popSize = tk.Entry(parent)
+        mutRate = tk.Entry(parent)
+        crossRate = tk.Entry(parent)
+
+        loadFile.grid(row=0, column=0)
+        timeLabel.grid(row=1, column=0)
+        popSizeLabel.grid(row=2, column=0)
+        mutRateLabel.grid(row=3, column=0)
+        crossRateLabel.grid(row=4, column=0)
+        time.grid(row=1, column=1)
+        popSize.grid(row=2, column=1)
+        mutRate.grid(row=3, column=1)
+        crossRate.grid(row=4, column=1)
+    
     def addFileOP(self, path):
         """Open a file selection dialogue and update OP Maker options"""
         self.paths.append(path)
@@ -217,6 +260,16 @@ class CCBias():
         self.updateUserFunctionsDict()
         self.updateOptionGen()  
     
+    def addFilePathOpt(self, path):
+        """Open a file selection dialogue and update Genmaker options"""
+        self.paths.append(path)
+        name = self.extractScriptName(path)
+        spec = importlib.util.spec_from_file_location(name, path)
+        self.userFiles.append(importlib.util.module_from_spec(spec))
+        spec.loader.exec_module(self.userFiles[-1])
+        self.updateUserFunctionsDict()
+        self.updateOptionPathOpt()  
+
     def makeOPMakerCharEntries(self, OPMaker):
         """Add the fields for the Characteristic inputs"""
         self.charOPEntryFrame = tk.LabelFrame(OPMaker, text="Characteristic Entries")
@@ -556,6 +609,14 @@ class CCBias():
                                                     self.genStringVars[i],
                                                     *self.userFuncs.keys())
             self.selectGenOptionMenus[i].grid(row=i+1, column = 1)
+
+    def updateOptionPathOpt(self, *args):
+        for i in range(len(self.selectPathOptOptionMenus)):
+            self.selectPathOptOptionMenus[i].destroy()
+            self.selectPathOptOptionMenus[i] = tk.OptionMenu(self.surveyOptimization,
+                                                    self.pathOptStringVars[i],
+                                                    *self.userFuncs.keys())
+            self.selectPathOptOptionMenus[i].grid(row=i+1, column = 1)
     
     def updateUserFunctionsDict(self):
         
@@ -606,3 +667,6 @@ class CCBias():
         displayMeasurements.grid(row=3, column=0)
 
         return
+
+    
+
