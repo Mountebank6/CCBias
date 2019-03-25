@@ -205,14 +205,14 @@ class CCBias():
     def createPathTab(self, parent):
         """Create the stuff that lets you path-optimize"""
         
-        loadFile = tk.Button(self.GenMaker, text="Upload File",
+        loadFile = tk.Button(parent, text="Upload File",
                     command = lambda: self.addFilePathOpt(getFile()))
         #makeGen = tk.Button(self.GenMaker, text="Assemble Generator",
         #            command = self.setGen)
         
         self.pathOptStringVars.append(tk.StringVar())
         self.pathOptStringVars[-1].set("default")
-        self.pathOptSelectorLabels.append(tk.Label(self.GenMaker,
+        self.pathOptSelectorLabels.append(tk.Label(parent,
                                          text="Select Function"))  
         self.selectPathOptOptionMenus.append(tk.OptionMenu(parent,
                                                     self.genStringVars[-1],
@@ -616,7 +616,7 @@ class CCBias():
             self.selectPathOptOptionMenus[i] = tk.OptionMenu(self.surveyOptimization,
                                                     self.pathOptStringVars[i],
                                                     *self.userFuncs.keys())
-            self.selectPathOptOptionMenus[i].grid(row=i+1, column = 1)
+            self.selectPathOptOptionMenus[i].grid(row=i+1, column = 2)
     
     def updateUserFunctionsDict(self):
         
