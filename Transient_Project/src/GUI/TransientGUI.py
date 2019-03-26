@@ -22,6 +22,7 @@ from copy import deepcopy
 from ..makedata.ObservingProfile import OP_REQD_ARGS, ObservingProfile
 from ..makedata.TransientGenerator import TRANS_REQD_ARGS, TransientGenerator
 from ..makedata.TransientSurvey import TransientSurvey
+from ..optimizepath.TransientGenetic import TransientGenetic
 
 getFile = filedialog.askopenfilename
 
@@ -207,6 +208,7 @@ class CCBias():
         
         loadFile = tk.Button(parent, text="Upload File",
                     command = lambda: self.addFilePathOpt(getFile()))
+        
         #makeGen = tk.Button(self.GenMaker, text="Assemble Generator",
         #            command = self.setGen)
         
@@ -215,21 +217,39 @@ class CCBias():
         self.pathOptSelectorLabels.append(tk.Label(parent,
                                          text="Select Function"))  
         self.selectPathOptOptionMenus.append(tk.OptionMenu(parent,
-                                                    self.genStringVars[-1],
+                                                    self.pathOptStringVars[-1],
                                                     *self.userFuncs.keys())) 
-        self.selectPathOptOptionMenus[-1].grid(row=1,column=3)
+        self.selectPathOptOptionMenus[-1].grid(row=6,column=1)
 
+        scoreFuncLabel = tk.Label(parent, text="Scoring Function")
+        generationsLabel = tk.Label(parent, text="Generations to run")
         timeLabel = tk.Label(parent, text="Running Time Per Genome")
         popSizeLabel = tk.Label(parent, text="Cohort Population Size" + 
                                 "(must be divisible by 4)")
         mutRateLabel = tk.Label(parent, text="Mutation probability per gene")
         crossRateLabel = tk.Label(parent, text="Crossover probability per gene")
+        filenameLabel = tk.Label(parent, text="Data Dump Filename")
 
+        filename = tk.Entry(parent)
+        generations = tk.Entry(parent)
         time = tk.Entry(parent)
         popSize = tk.Entry(parent)
         mutRate = tk.Entry(parent)
         crossRate = tk.Entry(parent)
 
+        def writeBestGenome():
+            file = open(filename.get(), 'x')
+            scoreFuncName = self.pathOptStringVars[-1].get()
+            scoreFunc = self.userFuncs[scoreFuncName]
+            transGen = TransientGenetic(self.survey, scoreFunc, 
+                                        int(time.get()), int(popSize.get()),
+                                        float(mutRate.get()), float(crossRate.get()),
+                                        int(generations.get()))
+            file.write(transGen.runForAllGenerations())
+            file.close()
+
+        runOptimization = tk.Button(parent, text="Optimize and Dump to Disk",
+                    command = writeBestGenome)
         loadFile.grid(row=0, column=0)
         timeLabel.grid(row=1, column=0)
         popSizeLabel.grid(row=2, column=0)
@@ -239,6 +259,42 @@ class CCBias():
         popSize.grid(row=2, column=1)
         mutRate.grid(row=3, column=1)
         crossRate.grid(row=4, column=1)
+        generationsLabel.grid(row=5,column=0)
+        generations.grid(row=5,column=1)
+        scoreFuncLabel.grid(row=6, column=0)
+        filenameLabel.grid(row=7, column=0)
+        filename.grid(row=7, column=1)
+        runOptimization.grid(row=8, column=0)
+    
+    def createSimTab(self, parent):
+        """Assemble the stuff that lets you run a sim and save data"""
+        def assembleSimulation():
+            self.survey = TransientSurvey(self.assembledGen, 
+                                          self.assembledOP)
+        def runTheSim(time):
+            assembleSimulation()
+            for _ in range(time):
+                self.survey.advance()
+        def dumpData():
+            filename = dataFileName.get()
+            file = open(filename, 'x')
+            file.write(self.survey.getMeasurementData())
+            file.close()
+
+        timeToRun = tk.Entry(parent)
+        dataFileName = tk.Entry(parent)
+        timeLabel = tk.Label(parent, text="Time to Run")
+        fileNameLabel = tk.Label(parent, text="Data Dump Filename")
+        runSurvey = tk.Button(parent, text = "Run The Sim",
+                              command = lambda: runTheSim(int(timeToRun.get())))
+        writeMeasurements = tk.Button(parent, text = "Write Measurements to Disk",
+                              command = dumpData)
+        timeLabel.grid(row=1, column=0)
+        timeToRun.grid(row=1, column=1)
+        runSurvey.grid(row=2, column=1)
+        fileNameLabel.grid(row=3, column=0)
+        dataFileName.grid(row=3, column=1)
+        writeMeasurements.grid(row=4, column=1)
     
     def addFileOP(self, path):
         """Open a file selection dialogue and update OP Maker options"""
@@ -641,32 +697,7 @@ class CCBias():
             raise IndexError("No \\ or /in path")
         return path[loc+1:-3]
     
-    def createSimTab(self, parent):
-        """Assemble the stuff that lets you run a sim and save data"""
-        def assembleSimulation():
-            self.survey = TransientSurvey(self.assembledGen, 
-                                          self.assembledOP)
-        def runTheSim(time):
-            for _ in range(time):
-                self.survey.advance()
-        def getMeasurementData():
-            return self.survey.getMeasurementData()
 
-        timeToRun = tk.Entry(parent)
-        assembleSurvey = tk.Button(parent, text="Initialize Survey",
-                                command = assembleSimulation)
-        timeLabel = tk.Label(parent, text="Time to Run")
-        runSurvey = tk.Button(parent, text = "Run The Sim",
-                              command = lambda: runTheSim(int(timeToRun.get())))
-        displayMeasurements = tk.Button(parent, text = "Display Measurements",
-                              command = lambda: print(getMeasurementData()))
-        assembleSurvey.grid(row=0, column=0)
-        timeLabel.grid(row=1, column=0)
-        timeToRun.grid(row=1, column=1)
-        runSurvey.grid(row=2, column=1)
-        displayMeasurements.grid(row=3, column=0)
-
-        return
 
     
 
