@@ -15,7 +15,7 @@ class TransientGenetic:
     """Class that optimizes survey score with genetic algorithm"""
 
     def __init__(self, survey, scoringFunc, surveyTime,
-                 popSize, mutRate, crossRate):
+                 popSize, mutRate, crossRate, totalGenerations):
         """
         Args:
             survey:
@@ -27,6 +27,9 @@ class TransientGenetic:
                     the score of the survey. Higher => better
             surveyTime:
                 Iterations to run survey before scoring it
+            totalGenerations:
+                number of times to breed: i.e. number of iterations
+                of the *genetic algorithm* you want to run
         
         """
 
@@ -39,6 +42,7 @@ class TransientGenetic:
         self.surv = survey
         self.crossRate = crossRate
         self.mutRate = mutRate
+        self.totalGenerations = totalGenerations
         
         #Ensure that popsize is divisible by 4
         #This is because the structure of our
@@ -55,6 +59,14 @@ class TransientGenetic:
         self.population = self.getRandomPopulation()
         self.scorelist = [1]*len(self.population)
 
+    def runForAllGenerations(self):
+        """Run all the iterations of the algorithm and return best genome"""
+        for _ in range(self.totalGenerations):
+            self.iterate()
+        for i in range(self.population):
+            if self.scorelist[i] == max(self.scorelist):
+                return self.population[i]
+    
     def iterate(self):
         """Breed a new generation and score them"""
         
