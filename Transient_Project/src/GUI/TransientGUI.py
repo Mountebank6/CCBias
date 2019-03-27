@@ -23,6 +23,9 @@ from ..makedata.ObservingProfile import OP_REQD_ARGS, ObservingProfile
 from ..makedata.TransientGenerator import TRANS_REQD_ARGS, TransientGenerator
 from ..makedata.TransientSurvey import TransientSurvey
 from ..optimizepath.TransientGenetic import TransientGenetic
+from ..optimizepath.TransientSPSA import TransientSPSA
+from ..optimizepath.TransientBlackBox import TransientBlackBox
+from ast import literal_eval
 
 getFile = filedialog.askopenfilename
 
@@ -64,6 +67,10 @@ class CCBias():
         self.pathOptSelectorLabels = []
         self.selectPathOptOptionMenus = []
 
+        self.biasOptStringVars = []
+        self.biasOptSelectorLabels = []
+        self.selectBiasOptOptionMenus = []
+
         self.createWidgets()
 
     def createWidgets(self):    
@@ -72,12 +79,12 @@ class CCBias():
         assembleSim = ttk.Frame(taskControl)
         runSim = ttk.Frame(taskControl)
         self.surveyOptimization = ttk.Frame(taskControl)
-        biasExtraction = ttk.Frame(taskControl) 
+        self.biasExtraction = ttk.Frame(taskControl) 
 
         taskControl.add(assembleSim, text='Assemble Simulation')  
         taskControl.add(runSim, text='Run Simulation')  
         taskControl.add(self.surveyOptimization, text='Survey Optimization')  
-        taskControl.add(biasExtraction, text='Bias Extraction')  
+        taskControl.add(self.biasExtraction, text='Bias Extraction')  
 
         taskControl.pack(expand=1, fill="both")  
 
@@ -85,6 +92,7 @@ class CCBias():
         self.createAssemblyTabs(assembleSim)
         self.createSimTab(runSim)
         self.createPathTab(self.surveyOptimization)
+        self.createBiasTab(self.biasExtraction)
 
 
     def createAssemblyTabs(self, parent):
@@ -215,19 +223,19 @@ class CCBias():
         self.pathOptStringVars.append(tk.StringVar())
         self.pathOptStringVars[-1].set("default")
         self.pathOptSelectorLabels.append(tk.Label(parent,
-                                         text="Select Function"))  
+                                         text="Select Loss Function"))  
         self.selectPathOptOptionMenus.append(tk.OptionMenu(parent,
                                                     self.pathOptStringVars[-1],
                                                     *self.userFuncs.keys())) 
         self.selectPathOptOptionMenus[-1].grid(row=6,column=1)
 
         scoreFuncLabel = tk.Label(parent, text="Scoring Function")
-        generationsLabel = tk.Label(parent, text="Generations to run")
-        timeLabel = tk.Label(parent, text="Running Time Per Genome")
+        generationsLabel = tk.Label(parent, text="Generations to run (int)")
+        timeLabel = tk.Label(parent, text="Running Time Per Genome (int)")
         popSizeLabel = tk.Label(parent, text="Cohort Population Size" + 
-                                "(must be divisible by 4)")
-        mutRateLabel = tk.Label(parent, text="Mutation probability per gene")
-        crossRateLabel = tk.Label(parent, text="Crossover probability per gene")
+                                "(int, must be divisible by 4)")
+        mutRateLabel = tk.Label(parent, text="Mutation probability per gene (float)")
+        crossRateLabel = tk.Label(parent, text="Crossover probability per gene (float)")
         filenameLabel = tk.Label(parent, text="Data Dump Filename")
 
         filename = tk.Entry(parent)
@@ -259,6 +267,75 @@ class CCBias():
         popSize.grid(row=2, column=1)
         mutRate.grid(row=3, column=1)
         crossRate.grid(row=4, column=1)
+        generationsLabel.grid(row=5,column=0)
+        generations.grid(row=5,column=1)
+        scoreFuncLabel.grid(row=6, column=0)
+        filenameLabel.grid(row=7, column=0)
+        filename.grid(row=7, column=1)
+        runOptimization.grid(row=8, column=0)
+    
+    def createBiasTab(self, parent):
+        """Create the stuff that lets you Estimate Model Parameters"""
+        
+        loadFile = tk.Button(parent, text="Upload File",
+                    command = lambda: self.addFileBiasOpt(getFile()))
+        #makeGen = tk.Button(self.GenMaker, text="Assemble Generator",
+        #            command = self.setGen)
+        
+        self.biasOptStringVars.append(tk.StringVar())
+        self.biasOptStringVars[-1].set("default")
+        self.biasOptSelectorLabels.append(tk.Label(parent,
+                                         text="Select Function"))  
+        self.selectBiasOptOptionMenus.append(tk.OptionMenu(parent,
+                                                    self.biasOptStringVars[-1],
+                                                    *self.userFuncs.keys())) 
+        self.selectBiasOptOptionMenus[-1].grid(row=6,column=1)
+
+        scoreFuncLabel = tk.Label(parent, text="Loss Function")
+        generationsLabel = tk.Label(parent, text="Algorithm iterations (int)")
+        timeLabel = tk.Label(parent, text="Survey Frames (int)")
+
+        filenameLabel = tk.Label(parent, text="Data Dump Filename")
+
+        filename = tk.Entry(parent)
+        generations = tk.Entry(parent)
+        time = tk.Entry(parent)
+
+
+        def setComparisonData():
+            name = getFile()
+            file = open(name, 'r')
+            dataString = file.read()
+            self.comparisonData = literal_eval(dataString)
+        
+        loadData = tk.Button(parent, text="Load Comparison Data",
+                    command = setComparisonData)
+        
+        def writeBestParams():
+            file = open(filename.get(), 'x')
+            lossFuncName = self.biasOptStringVars[-1].get()
+            lossFunc = self.userFuncs[lossFuncName]
+            blackBox = TransientBlackBox(self.survey, int(time.get()), 
+                                        lossFunc, self.comparisonData)
+            
+            dim = len(blackBox.rawChar)
+            startVec = []
+            for _ in range(dim):
+                startVec += [0]
+            
+            transSPSA = TransientSPSA(blackBox, int(generations.get()), startVec)
+            bestParams = transSPSA.minimize()[1]
+            file.write(str(bestParams))
+            file.close()
+
+        runOptimization = tk.Button(parent, text="Estimate Params and Dump to Disk",
+                    command = writeBestParams)
+        loadFile.grid(row=0, column=0)
+        loadData.grid(row=0, column=1)
+        timeLabel.grid(row=1, column=0)
+
+        time.grid(row=1, column=1)
+
         generationsLabel.grid(row=5,column=0)
         generations.grid(row=5,column=1)
         scoreFuncLabel.grid(row=6, column=0)
@@ -324,7 +401,17 @@ class CCBias():
         self.userFiles.append(importlib.util.module_from_spec(spec))
         spec.loader.exec_module(self.userFiles[-1])
         self.updateUserFunctionsDict()
-        self.updateOptionPathOpt()  
+        self.updateOptionPathOpt() 
+
+    def addFileBiasOpt(self, path):
+        """Open a file selection dialogue and update Genmaker options"""
+        self.paths.append(path)
+        name = self.extractScriptName(path)
+        spec = importlib.util.spec_from_file_location(name, path)
+        self.userFiles.append(importlib.util.module_from_spec(spec))
+        spec.loader.exec_module(self.userFiles[-1])
+        self.updateUserFunctionsDict()
+        self.updateOptionBiasOpt()  
 
     def makeOPMakerCharEntries(self, OPMaker):
         """Add the fields for the Characteristic inputs"""
@@ -673,6 +760,14 @@ class CCBias():
                                                     self.pathOptStringVars[i],
                                                     *self.userFuncs.keys())
             self.selectPathOptOptionMenus[i].grid(row=i+1, column = 2)
+    
+    def updateOptionBiasOpt(self, *args):
+        for i in range(len(self.selectBiasOptOptionMenus)):
+            self.selectBiasOptOptionMenus[i].destroy()
+            self.selectBiasOptOptionMenus[i] = tk.OptionMenu(self.biasExtraction,
+                                                    self.biasOptStringVars[i],
+                                                    *self.userFuncs.keys())
+            self.selectBiasOptOptionMenus[i].grid(row=i+1, column = 2)
     
     def updateUserFunctionsDict(self):
         
