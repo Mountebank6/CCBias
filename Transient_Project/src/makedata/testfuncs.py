@@ -8,18 +8,18 @@ from src.makedata.TransientEvent import TransientEvent
 
 trans = TransientEvent
 
-def circleView(time, events, radius, center):
+def circleView(time, frameEvents, radius, center):
     """Return events that are in a circle"""
-    passedEvents = []
-    for event in events:
-        if ((center[0] - event.history[-1][1])**2
-           +(center[1] - event.history[-1][2])**2) < radius**2:
-           passedEvents.append(event)
-    return passedEvents
+    passedFrameEvents = []
+    for pair in frameEvents:
+        if ((center[0] - pair[0].history[-1][1])**2
+           +(center[1] - pair[0].history[-1][2])**2) < radius**2:
+           passedFrameEvents.append(pair)
+    return passedFrameEvents
 
-def allView(time, events):
-    """Return all events"""
-    return events
+def allView(time, frameEvents):
+    """Return all frameEvents"""
+    return frameEvents
 
 def manyArgFunc(a,b,c,d,e,f,g,h,i,j,k,l):
     return
