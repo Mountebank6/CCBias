@@ -68,6 +68,8 @@ class TransientEvent:
         self.markedForDeath = False
         self.eventID = np.random.randint(2**64, dtype = np.uint64)
         self.holisticDetection = False
+        if self.loc[0] - self.history[0][0] + 1 >= self.lifetime:
+            self.markedForDeath = True
         
     
     def advanceEvent(self):
