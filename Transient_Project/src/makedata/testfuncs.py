@@ -74,3 +74,45 @@ def genEventsUniform(frame, shape, prob):
         newEvents.append(event)
     return newEvents
 
+def getPointInRing(minRad, maxRad):
+    """Return a point in the ring from minRad to maxRad inclusive"""
+    length = np.sqrt(np.random.uniform(minRad**2, maxRad**2))
+    angle = np.pi*np.random.uniform(0,2)
+    x = length * np.cos(angle)
+    y = length * np.sin(angle)
+    return (x,y)
+
+def genLightBugs(frame, shape, surv, bugStart0, bugStart1, bugStart2,
+                 birdStart0, birdStart1, birdStart2, 
+                 a, c, alpha, gamma):
+    #we steal from https://math.psu.edu/tseng/class/Math251/Notes-Predator-Prey.pdf
+    #but we modify it for our 3 zones: the predators like the center
+    #a, c, alpha, gamma all positive
+    radius = int(shape[0]/2)
+    if frame == 0:
+        #These are lists for the 3 zones [inner, middle, outer]
+        surv.bug = [bugStart0, bugStart1, bugStart2]
+        surv.bird = [birdStart0, birdStart1, birdStart2]
+        surv.areas = [round(np.pi*(radius/3)**2), 
+                      round(np.pi*(2*radius/3)**2 - np.pi*(radius/3)**2),
+                      round(np.pi*(3*radius/3)**2 - np.pi*(2*radius/3)**2)]
+    pBug = [a*surv.bug[0] - alpha*surv.bug[0]*surv.bird[0],
+            a*surv.bug[1] - alpha*surv.bug[1]*surv.bird[1],
+            a*surv.bug[2] - alpha*surv.bug[2]*surv.bird[2]]
+        #Now we make the birds more robust to starvation in the center
+    pBird = [-c*(1/6)*surv.bird[0] + gamma*surv.bug[0]*surv.bird[0],
+             -c*(3/6)*surv.bird[1] + gamma*surv.bug[1]*surv.bird[1],
+             -c*(5/6)*surv.bird[2] + gamma*surv.bug[2]*surv.bird[2]]
+    for i in range(len(surv.areas)):
+        surv.bug[i] = np.random.binomial(surv.areas[i], pBug[i])
+        surv.bird[i] = np.random.binomial(surv.areas[i], pBird[i])
+
+    newEvents = []
+    for i in range(len(surv.bug)):
+        for _ in range(surv.bug[i]):
+            loc = getPointInRing(round(i*radius/3),round((i+1)*radius/3))
+            birth = [frame, loc[0], loc[1], 0, 0]
+            newEvent = TransientEvent(birth, lifetime = 1, classID = "Bug") 
+            newEvents.append(newEvent)
+
+    return newEvents
