@@ -22,6 +22,7 @@ class TransientGenerator:
             
             generatorFunction: 
                 List of Functions used to make new events.
+                Returns: List of TransientEvent objects
                     Args: 
                         currentFrameNumber:
                             The current frame of the simulation
