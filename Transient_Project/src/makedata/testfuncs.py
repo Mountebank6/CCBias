@@ -198,5 +198,5 @@ def bugScoringFunc(surv):
     obsAreas = calcOverlapAreas(radius, radFrac, centerFrac)
     for i in range(len(detectedEvents)):
         obsBugs = detectedEvents[i]
-        
+        #TODO finish leastsquares estimation of c
     return score
