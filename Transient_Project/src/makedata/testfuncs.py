@@ -56,6 +56,9 @@ def gaussSurveyNoise(event, mean, std):
 def gaussEventNoise(mean, std):
     return np.random.normal(mean, std)
 
+def bugSurveyNoise(event):
+    return 0
+
 def genEventsUniform(frame, shape, prob):
     """Generate events with uniform prob over the region
     
@@ -80,14 +83,17 @@ def getPointInRing(minRad, maxRad):
     angle = np.pi*np.random.uniform(0,2)
     x = length * np.cos(angle)
     y = length * np.sin(angle)
-    return (x,y)
+    return [x,y]
 
 def genLightBugs(frame, shape, surv, bugStart0, bugStart1, bugStart2,
                  birdStart0, birdStart1, birdStart2, 
                  a, c, alpha, gamma):
+    #requires a square shape
+    
     #we steal from https://math.psu.edu/tseng/class/Math251/Notes-Predator-Prey.pdf
     #but we modify it for our 3 zones: the predators like the center
     #a, c, alpha, gamma all positive
+    surv.c = c
     radius = int(shape[0]/2)
     if frame == 0:
         #These are lists for the 3 zones [inner, middle, outer]
@@ -99,20 +105,59 @@ def genLightBugs(frame, shape, surv, bugStart0, bugStart1, bugStart2,
     pBug = [a*surv.bug[0] - alpha*surv.bug[0]*surv.bird[0],
             a*surv.bug[1] - alpha*surv.bug[1]*surv.bird[1],
             a*surv.bug[2] - alpha*surv.bug[2]*surv.bird[2]]
+    
         #Now we make the birds more robust to starvation in the center
     pBird = [-c*(1/6)*surv.bird[0] + gamma*surv.bug[0]*surv.bird[0],
              -c*(3/6)*surv.bird[1] + gamma*surv.bug[1]*surv.bird[1],
              -c*(5/6)*surv.bird[2] + gamma*surv.bug[2]*surv.bird[2]]
     for i in range(len(surv.areas)):
-        surv.bug[i] = np.random.binomial(surv.areas[i], pBug[i])
-        surv.bird[i] = np.random.binomial(surv.areas[i], pBird[i])
+        surv.bug[i] = np.random.binomial(surv.areas[i], min(1,pBug[i]))
+        surv.bird[i] = np.random.binomial(surv.areas[i], min(1,pBird[i]))
 
     newEvents = []
     for i in range(len(surv.bug)):
         for _ in range(surv.bug[i]):
             loc = getPointInRing(round(i*radius/3),round((i+1)*radius/3))
+            loc[0] += radius    #move the center of the circle to the
+            loc[1] += radius    #middle of the survey
             birth = [frame, loc[0], loc[1], 0, 0]
-            newEvent = TransientEvent(birth, lifetime = 1, classID = "Bug") 
+            newEvent = TransientEvent(birth, lifetime = 1, classID = i) 
             newEvents.append(newEvent)
 
     return newEvents
+
+def viewBugs(time, frameEvents, surv, rad, center):
+    """Return frameEvents of bugs visible in a circle around center
+    
+        Args:
+            rad: radius of viewing circle: given as a fraction of island radius
+            center: where on the island to view from: 
+                given as a fraction of island radius
+    """
+    passed = []
+    shape = surv.generator.surveyShape
+    viewCenter = [int((shape[0]/2)*(1 + center)), int(shape[0]/2)]
+    for frameEvent in frameEvents:
+        bug = frameEvent[0]
+        bugLoc = [bug.x, bug.y]
+        deltax = bugLoc[0]-viewCenter[0]
+        deltay = bugLoc[1]-viewCenter[1]
+        if np.sqrt(deltax**2 + deltay**2) <= rad:
+            passed.append(frameEvent)           
+    return passed
+
+def bugMeasurementFunction(events, surv):
+    """Return the number of bugs detected/existed each frame"""
+    allDetectionData = ([[[0,0,0] for i in range(len(surv.absoluteTime)+1)]]
+                       +[[[0,0,0] for i in range(len(surv.absoluteTime)+1)]])
+    for event in events:
+        time = event.time
+        allDetectionData[1][time][event.classID] += 1
+        if event.holisticDetection:
+            allDetectionData[0][time][event.classID] += 1
+    return allDetectionData
+
+def bugScoringFunc(surv):
+    score = 0
+
+    return score
