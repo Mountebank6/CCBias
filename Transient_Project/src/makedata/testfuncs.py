@@ -157,7 +157,46 @@ def bugMeasurementFunction(events, surv):
             allDetectionData[0][time][event.classID] += 1
     return allDetectionData
 
+def intersectionArea(d, R, r):
+    """Return the area of intersection of two circles.
+
+    The circles have radii R and r, and their centres are separated by d.
+
+    """
+    if d <= abs(R-r):
+        # One circle is entirely enclosed in the other.
+        return np.pi * min(R, r)**2
+    if d >= r + R:
+        # The circles don't overlap at all.
+        return 0
+    r2, R2, d2 = r**2, R**2, d**2
+    alpha = np.arccos((d2 + r2 - R2) / (2*d*r))
+    beta = np.arccos((d2 + R2 - r2) / (2*d*R))
+    return ( r2 * alpha + R2 * beta -
+             0.5 * (r2 * np.sin(2*alpha) + R2 * np.sin(2*beta))
+           )
+
+def calcOverlapAreas(radius, radFrac, centerFrac):
+    """Calculate the overlap of the view with the 3 zones"""
+    overlaps = [0,0,0]
+    d = centerFrac*radius
+    rZones = [radius/3,2*radius/3,3*radius/3]
+    rView = radFrac*radius
+    overlaps[0] = intersectionArea(d, rZones[0], rView)
+    overlaps[1] = intersectionArea(d, rZones[1], rView) - overlaps[0]
+    overlaps[2] = intersectionArea(d, rZones[2], rView) - overlaps[0] - overlaps[1]
+    return overlaps
+
+
 def bugScoringFunc(surv):
     score = 0
-
+    detectedEvents = surv.getMeasurementData()[0]
+    cEstimates = []
+    radius = int(surv.generator.surveyShape[0]/2)
+    radFrac = surv.profile.viewingFieldArgs[0]
+    centerFrac = surv.profile.viewingFieldArgs[1]
+    obsAreas = calcOverlapAreas(radius, radFrac, centerFrac)
+    for i in range(len(detectedEvents)):
+        obsBugs = detectedEvents[i]
+        
     return score
