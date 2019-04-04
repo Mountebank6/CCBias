@@ -197,8 +197,9 @@ def bugScoringFunc(surv):
     radFrac = surv.profile.viewingFieldArgs[0]
     centerFrac = surv.profile.viewingFieldArgs[1]
     obsAreas = calcOverlapAreas(radius, radFrac, centerFrac)
-    if len(detectedEvents) <= 1:
-        #With only one frame of data, you cannot say anything about dynamics
+    if len(detectedEvents) <= 2:
+        #With only one or two frame of data, you cannot say anything about dynamics
+        #This is because the data from bird lags into propogating to bug
         return 1
     for i in range(len(detectedEvents)-1):
         return
