@@ -189,6 +189,7 @@ def calcOverlapAreas(radius, radFrac, centerFrac):
 
 
 def bugScoringFunc(surv):
+    """Return 1/(deltac)**2 where deltac is the error in estimate of c"""
     score = 0
     detectedEvents = surv.getMeasurementData()[0]
     cEstimates = []
@@ -196,7 +197,11 @@ def bugScoringFunc(surv):
     radFrac = surv.profile.viewingFieldArgs[0]
     centerFrac = surv.profile.viewingFieldArgs[1]
     obsAreas = calcOverlapAreas(radius, radFrac, centerFrac)
-    for i in range(len(detectedEvents)):
-        obsBugs = detectedEvents[i]
-        #TODO finish leastsquares estimation of c
+    if len(detectedEvents) <= 1:
+        #With only one frame of data, you cannot say anything about dynamics
+        return 1
+    for i in range(len(detectedEvents)-1):
+        return
+        #TODO make it work
+        
     return score
