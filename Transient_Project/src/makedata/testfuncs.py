@@ -95,13 +95,16 @@ def genLightBugs(frame, shape, surv, bugStart0, bugStart1, bugStart2,
     #a, c, alpha, gamma all positive
     surv.c = c
     radius = int(shape[0]/2)
-    if frame == 0:
+    if not hasattr(surv, 'bug'):
         #These are lists for the 3 zones [inner, middle, outer]
         surv.bug = [bugStart0, bugStart1, bugStart2]
         surv.bird = [birdStart0, birdStart1, birdStart2]
         surv.areas = [round(np.pi*(radius/3)**2), 
                       round(np.pi*(2*radius/3)**2 - np.pi*(radius/3)**2),
                       round(np.pi*(3*radius/3)**2 - np.pi*(2*radius/3)**2)]
+    
+    #Note that the value of alpha is unobservable since birds are unobservable
+        #
     pBug = [a*surv.bug[0] - alpha*surv.bug[0]*surv.bird[0],
             a*surv.bug[1] - alpha*surv.bug[1]*surv.bird[1],
             a*surv.bug[2] - alpha*surv.bug[2]*surv.bird[2]]
@@ -191,8 +194,8 @@ def calcOverlapAreas(radius, radFrac, centerFrac):
 def bugScoringFunc(surv):
     """Return 1/(deltac)**2 where deltac is the error in estimate of c"""
     score = 0
+    birdCoefficients = [1/6,3/6,5/6] #The modifiers to c in each zone
     detectedEvents = surv.getMeasurementData()[0]
-    cEstimates = []
     radius = int(surv.generator.surveyShape[0]/2)
     radFrac = surv.profile.viewingFieldArgs[0]
     centerFrac = surv.profile.viewingFieldArgs[1]
@@ -201,8 +204,20 @@ def bugScoringFunc(surv):
         #With only one or two frame of data, you cannot say anything about dynamics
         #This is because the data from bird lags into propogating to bug
         return 1
-    for i in range(len(detectedEvents)-1):
-        return
-        #TODO make it work
-        
+    
+    A = [] #the matrix which will let us solve for c, a, and gamma in Ax=b
+    b = [] #the b vector in Ax=b
+    for i in range(len(detectedEvents)-2):
+        bugLast = detectedEvents[i]
+        bugNext = detectedEvents[i+1]
+        bugAfterNext = detectedEvents[i+2]
+        for k in range(3):
+            if obsAreas[k] > 0:
+                A.append([-bugNext[k], -bugNext[k]*birdCoefficients[k], 
+                          bugNext[k]**2, -(bugNext[k]**2)/obsAreas[k] ])
+                b.append([-bugAfterNext[k]/obsAreas[k]
+                          -(bugNext[k]**2)/(obsAreas[k]*bugLast[k])])
+    coefficientVector = np.linalg.lstsq(A,b)
+    cEstimate = coefficientVector[1]/coefficientVector[0]
+    score = max(0,1/(cEstimate-surv.c)**2)        
     return score
