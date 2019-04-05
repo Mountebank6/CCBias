@@ -225,7 +225,7 @@ def bugScoringFunc(surv):
                           -bugLast*bugNext])
                 b.append([bugAfterNext - (bugNext**2)/bugLast])
     coefficientVector = np.linalg.lstsq(A,b)
-    #coefficientVector is [a, c*a, gamma*a, gamma]
-    cEstimate = coefficientVector[1]/coefficientVector[0]
+    #coefficientVector is [c,c*a,gamma,gamma*a]
+    cEstimate = coefficientVector[0]
     score = max(0,1/(cEstimate-surv.c)**2)        
     return score
