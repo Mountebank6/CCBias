@@ -17,7 +17,7 @@ def circleView(time, frameEvents, radius, center):
            passedFrameEvents.append(pair)
     return passedFrameEvents
 
-def allView(time, frameEvents):
+def allView(time, frameEvents, surv):
     """Return all frameEvents"""
     return frameEvents
 
@@ -105,15 +105,21 @@ def genLightBugs(frame, shape, surv, bugStart0, bugStart1, bugStart2,
     
     #Note that the value of alpha is unobservable since birds are unobservable
         #
-    pBug = [a*surv.bug[0] - alpha*surv.bug[0]*surv.bird[0],
+    deltBug = [a*surv.bug[0] - alpha*surv.bug[0]*surv.bird[0],
             a*surv.bug[1] - alpha*surv.bug[1]*surv.bird[1],
             a*surv.bug[2] - alpha*surv.bug[2]*surv.bird[2]]
     
         #Now we make the birds more robust to starvation in the center
-    pBird = [-c*(1/6)*surv.bird[0] + gamma*surv.bug[0]*surv.bird[0],
+    deltBird = [-c*(1/6)*surv.bird[0] + gamma*surv.bug[0]*surv.bird[0],
              -c*(3/6)*surv.bird[1] + gamma*surv.bug[1]*surv.bird[1],
              -c*(5/6)*surv.bird[2] + gamma*surv.bug[2]*surv.bird[2]]
+    pBug = [0,0,0]
+    pBird = [0,0,0]
+    for i in range(3):
+        pBug[i] = (deltBug[i] + surv.bug[i])/surv.areas[i]
+        pBird[i] = (deltBird[i] + surv.bird[i])/surv.areas[i]
     for i in range(len(surv.areas)):
+        print(pBug)
         surv.bug[i] = np.random.binomial(surv.areas[i], min(1,pBug[i]))
         surv.bird[i] = np.random.binomial(surv.areas[i], min(1,pBird[i]))
 
