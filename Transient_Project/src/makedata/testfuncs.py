@@ -219,10 +219,11 @@ def bugScoringFunc(surv):
         bugAfterNext = detectedEvents[i+2]
         for k in range(3):
             if obsAreas[k] > 0:
-                A.append([-bugNext[k], -bugNext[k]*birdCoefficients[k], 
-                          bugNext[k]**2, -(bugNext[k]**2)/obsAreas[k] ])
-                b.append([-bugAfterNext[k]/obsAreas[k]
-                          -(bugNext[k]**2)/(obsAreas[k]*bugLast[k])])
+                A.append([birdCoefficients[k]*(bugNext - (bugNext**2)/bugLast),
+                          birdCoefficients[k]*bugNext,
+                          bugNext**2-bugLast*bugNext,
+                          -bugLast*bugNext])
+                b.append([bugAfterNext - (bugNext**2)/bugLast])
     coefficientVector = np.linalg.lstsq(A,b)
     #coefficientVector is [a, c*a, gamma*a, gamma]
     cEstimate = coefficientVector[1]/coefficientVector[0]
