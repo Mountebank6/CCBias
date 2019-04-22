@@ -28,6 +28,9 @@ class TransientEvent:
                 maximum reportable luminosity. The ith entry in the
                 iterable represents the luminosity on the ith frame
                 of its existance
+                The individual luminosities do not necessarily have to
+                be floats. They could be any object as long as
+                noiseFunction interacts nicely with them
             noiseFunction:
                 function that adds noise to even luminosity
                 Arguments (in this order):
