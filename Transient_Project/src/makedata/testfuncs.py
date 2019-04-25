@@ -119,13 +119,16 @@ def genLightBugs(frame, shape, surv, bugStart0, bugStart1, bugStart2,
         pBug[i] = (deltBug[i] + surv.bug[i])/surv.areas[i]
         pBird[i] = (deltBird[i] + surv.bird[i])/surv.areas[i]
     for i in range(len(surv.areas)):
-        print(pBug)
-        surv.bug[i] = np.random.binomial(surv.areas[i], min(1,pBug[i]))
-        surv.bird[i] = np.random.binomial(surv.areas[i], min(1,pBird[i]))
+        if i == 0:
+            print(surv.bug, surv.bird)
+        #surv.bug[i] = np.random.binomial(surv.areas[i], min(1,pBug[i]))
+        #surv.bird[i] = np.random.binomial(surv.areas[i], min(1,pBird[i]))
+        surv.bug[i] = surv.areas[i]*pBug[i]
+        surv.bird[i] = surv.areas[i]*pBird[i]
 
     newEvents = []
     for i in range(len(surv.bug)):
-        for _ in range(surv.bug[i]):
+        for _ in range(round(surv.bug[i])):
             loc = getPointInRing(round(i*radius/3),round((i+1)*radius/3))
             loc[0] += radius    #move the center of the circle to the
             loc[1] += radius    #middle of the survey

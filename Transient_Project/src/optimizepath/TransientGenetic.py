@@ -33,10 +33,10 @@ class TransientGenetic:
         
         """
 
-        self.vChar = deepcopy(survey.profile.vChar)
-        self.oChar = deepcopy(survey.profile.oChar)
-        self.hChar = deepcopy(survey.profile.hChar)
-        self.sChar = deepcopy(survey.profile.sChar)
+        self.vChar = deepcopy(survey.profile.vCharPath)
+        self.oChar = deepcopy(survey.profile.oCharPath)
+        self.hChar = deepcopy(survey.profile.hCharPath)
+        self.sChar = deepcopy(survey.profile.sCharPath)
         self.score = scoringFunc
         self.runTime = surveyTime
         self.surv = survey
@@ -55,6 +55,7 @@ class TransientGenetic:
                          + self.oChar
                          + self.hChar
                          + self.sChar)
+        print(self.charGenome)
         self.genomeLength = len(self.charGenome)
         self.population = self.getRandomPopulation()
         self.scorelist = [1]*len(self.population)
@@ -63,7 +64,7 @@ class TransientGenetic:
         """Run all the iterations of the algorithm and return best genome"""
         for _ in range(self.totalGenerations):
             self.iterate()
-        for i in range(self.population):
+        for i in range(len(self.population)):
             if self.scorelist[i] == max(self.scorelist):
                 return self.population[i]
     
@@ -109,7 +110,7 @@ class TransientGenetic:
         """Return a population of random genomes"""
         pop = []
         for _ in range(self.popSize):
-            pop.append(self.getRandomGenome)
+            pop.append(self.getRandomGenome())
         return pop
     
     def mutate(self, characteristicGene):
@@ -256,7 +257,8 @@ class TransientGenetic:
             sumProbability = probs[-1]
         
         #Use the borders to get the parents
-        mother, father = self.getSelection(probs), self.getSelection(probs)
+        mother = population[self.getSelection(probs)]
+        father = population[self.getSelection(probs)]
         
         #Check for erros
         if mother is None or father is None:
@@ -264,10 +266,10 @@ class TransientGenetic:
 
         #Ensure the pair is different
         pathologicalScore = 0
-        while mother == father:
-            father = self.getSelection(probs)
+        while mother is father:
+            father = population[self.getSelection(probs)]
             pathologicalScore += 1
-            if pathologicalScore > 100:
+            if pathologicalScore > 5:
                 raise ValueError("mother == father and can't escape")
             
         return [mother, father]
@@ -286,7 +288,7 @@ class TransientGenetic:
             numGenome += (4 - numGenome%4)
         
         babies = []
-        for _ in range(numGenome/4):
+        for _ in range(int(round(numGenome/4))):
             #Select parents from the roulette
             parents = self.rouletteSelect(population, scorelist)
             
