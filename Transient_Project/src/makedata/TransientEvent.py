@@ -14,7 +14,7 @@ class TransientEvent:
     """
     def __init__(self, birthLoc, lifetime, classID, 
                  noiseFunction = zeroFunction, noiseExtraArgs = [],
-                 luminositySeries = None):
+                 luminositySeries = None, movementFunction = None):
         """
         Arguments:
             birthloc: length 5 list. Positions:
@@ -38,6 +38,11 @@ class TransientEvent:
             noiseExtraArgs:
                 This is for other arguments that the noise function
                 may require. 
+            movementFunction:
+                Args: 
+                    self: the event itself
+                Returns:
+                    Velocity to use for next time step format (xvel, yvel)
             
         """
         self.classID = classID
@@ -52,6 +57,7 @@ class TransientEvent:
         self.detectionHistory = []
         self.lifetime = int(lifetime)
         self.noiseFunc = noiseFunction
+        self.movementFunction = movementFunction
         if luminositySeries is None:
             self.lum = 1 + self.noiseFunc(
                                 1, self.loc, self.lifetime,
@@ -78,6 +84,8 @@ class TransientEvent:
     def advanceEvent(self):
         """Advance the event simulation by one tick"""
         if not self.markedForDeath:
+            if self.movementFunction is not None:
+                self.loc[3], self.loc[4] = self.movementFunction(self)
             self.loc[0] += 1
             self.loc[1] += self.loc[3]
             self.loc[2] += self.loc[4]
