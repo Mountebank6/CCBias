@@ -14,7 +14,8 @@ class TransientEvent:
     """
     def __init__(self, birthLoc, lifetime, classID, 
                  noiseFunction = zeroFunction, noiseExtraArgs = [],
-                 luminositySeries = None, movementFunction = None):
+                 luminositySeries = None, movementFunction = None, 
+                 velocityFunction = None):
         """
         Arguments:
             birthloc: length 5 list. Positions:
@@ -38,11 +39,18 @@ class TransientEvent:
             noiseExtraArgs:
                 This is for other arguments that the noise function
                 may require. 
-            movementFunction:
+            velocityFunction:
+                
                 Args: 
-                    self: the event itself
+                    timeSinceBirth: simulation ticks since event spawn
                 Returns:
                     Velocity to use for next time step format (xvel, yvel)
+            movementFunction:
+                OVERRIDES VELOCITY FUNCTION IF DEFINED
+                Args: 
+                    timeSinceBirth: simulation ticks since event spawn
+                Returns:
+                    position to use for next time step format (x, y)
             
         """
         self.classID = classID
@@ -58,6 +66,7 @@ class TransientEvent:
         self.lifetime = int(lifetime)
         self.noiseFunc = noiseFunction
         self.movementFunction = movementFunction
+        self.velocityFunction = velocityFunction
         if luminositySeries is None:
             self.lum = 1 + self.noiseFunc(
                                 1, self.loc, self.lifetime,
@@ -84,13 +93,16 @@ class TransientEvent:
     def advanceEvent(self):
         """Advance the event simulation by one tick"""
         if not self.markedForDeath:
-            if self.movementFunction is not None:
-                self.loc[3], self.loc[4] = self.movementFunction(self)
             self.loc[0] += 1
+            timeSinceBirth = self.loc[0] - self.history[0][0]
+            if self.velocityFunction is not None:
+                self.loc[3], self.loc[4] = self.velocityFunction(timeSinceBirth)
             self.loc[1] += self.loc[3]
             self.loc[2] += self.loc[4]
+            
+            if self.movementFunction is not None:
+                self.loc[1], self.loc[2] = self.movementFunction(timeSinceBirth)
             [self.time,self.x,self.y,self.xdot,self.ydot] = self.loc
-            timeSinceBirth = self.loc[0] - self.history[0][0]
 
             self.lum = (self.luminositySeries[
                                 timeSinceBirth % len(self.luminositySeries)
