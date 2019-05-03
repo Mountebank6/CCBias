@@ -54,6 +54,9 @@ class TransientGenerator:
         """
         self.surveyShape = surveyShape
         self.generatorFunctions = generatorFunctions
+        if callable(self.generatorFunctions):
+            self.generatorFunctions = [self.generatorFunctions]
+
         self.eArgs = extraArgs
         self.charBias = genFuncCharBias
 
