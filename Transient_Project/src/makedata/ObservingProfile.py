@@ -85,6 +85,8 @@ class ObservingProfile:
                     Args:
                         Event:
                             event to be tested
+                        Survey:
+                            The survey object in question
             surveyNoiseFunction:
                 Function that generates noise on the events
                     to simulate ambient sky noise
