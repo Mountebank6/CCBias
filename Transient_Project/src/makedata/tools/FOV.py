@@ -5,7 +5,7 @@ Apply Field of Vision to true data
 """
 
 
-__author__ = "Theo Faridani"
+__author__ = "T Faridani"
 
 import numpy as np
 import math

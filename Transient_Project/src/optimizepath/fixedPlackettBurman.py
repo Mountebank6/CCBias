@@ -13,7 +13,7 @@ Abraham Lee.
 """
 
 """
-This code was modified by Theo Faridani on 11/4/2018
+This code was modified by T Faridani on 11/4/2018
 
 DEPRECATED
 """
