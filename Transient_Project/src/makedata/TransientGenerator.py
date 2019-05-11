@@ -10,9 +10,6 @@ import numpy as np
 TRANS_REQD_ARGS = {"generatorFunction": 3}
 
 class TransientGenerator:
-    """
-    """
-
     def __init__(self, surveyShape, generatorFunctions, extraArgs,
                  genFuncCharBias):
         """
