@@ -295,6 +295,6 @@ class TransientGenetic:
             #Make a pair of children fr
             babies += self.breed(*parents)
 
-        newPop = population[:numGenome/2] + babies
+        newPop = population[:int(numGenome/2)] + babies
 
         return newPop
